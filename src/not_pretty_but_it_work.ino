@@ -243,15 +243,27 @@ void loop() {
  //{
   data.print(mstime);                  data.print(",");
 
-  data.print(gps.latitudeDegrees, 6);
-  data.print(gps.lat);                 data.print(",");
-  data.print(gps.longitudeDegrees, 6);
-  data.print(gps.lon);                 data.print(",");
+  if(gps.fix) {
+    data.print(gps.latitudeDegrees, 6);
+    data.print(gps.lat);                 data.print(",");
+    data.print(gps.longitudeDegrees, 6);
+    data.print(gps.lon);                 data.print(",");
 
-  data.print((int32_t)gps.satellites); data.print(",");
-  data.print(gps.speed, 3);            data.print(",");
-  data.print(gps.angle, 3);            data.print(",");
-  data.print(gps.altitude, 3);         data.print(",");
+    data.print((int32_t)gps.satellites); data.print(",");
+    data.print(gps.speed, 3);            data.print(",");
+    data.print(gps.angle, 3);            data.print(",");
+    data.print(gps.altitude, 3);         data.print(",");
+  } else {
+    data.print(-1, 6);
+    data.print(" No fix!");                 data.print(",");
+    data.print(-1, 6);
+    data.print(" No fix!");                 data.print(",");
+
+    data.print((int32_t)gps.satellites); data.print(",");
+    data.print(-1);            data.print(",");
+    data.print(-1);            data.print(",");
+    data.print(-1);         data.print(",");
+  }
 
   //from gps, needs work
   //data.print(euler_angles.x, 2);       data.print(",");
