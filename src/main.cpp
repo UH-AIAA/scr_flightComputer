@@ -232,4 +232,4 @@ void loop() {
     // Debugging information
     Serial.print(F("Longitude: ")); Serial.print(GPS.longitude); Serial.print(" ");
     Serial.print(F("Latitude: ")); Serial.print(GPS.latitude); Serial.print(" ");
-    Serial
+}
