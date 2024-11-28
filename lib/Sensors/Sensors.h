@@ -9,7 +9,10 @@
 #include <Adafruit_BMP3XX.h>
 #include <Adafruit_LSM6DSO32.h>
 
-bool read_LSM();
+#include <Quaternion.h>
 
+namespace Sensors {
+    bool read_LSM(Adafruit_LSM6DSO32 &, Vector3 &, Vector3 &, float &);
+};
 
 #endif

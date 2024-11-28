@@ -1,9 +1,8 @@
 #include "Sensors.h"
 
-bool Sensors::read_LSM() {
-  sensors_event_t accel;
-  sensors_event_t gyro;
-  sensors_event_t temp;
+// MAKE SURE TO PASS BY REFERENCE (use the &)
+bool Sensors::read_LSM(Adafruit_LSM6DSO32 &LSM, Vector3 &accel_data, Vector3 &gyro_data, float &temp_data) {
+  sensors_event_t accel, gyro, temp;
 
   // Attempt to read sensor data
   if(!LSM.getEvent(&accel, &gyro, &temp))
@@ -12,17 +11,17 @@ bool Sensors::read_LSM() {
   }
 
   // Store gyroscope data
-  lsm_gyro.x = gyro.gyro.x;
-  lsm_gyro.y = gyro.gyro.y;
-  lsm_gyro.z = gyro.gyro.z;
+  gyro_data.x = gyro.gyro.x;
+  gyro_data.y = gyro.gyro.y;
+  gyro_data.z = gyro.gyro.z;
 
   // Store accelerometer data
-  lsm_acc.x = accel.acceleration.x;
-  lsm_acc.y = accel.acceleration.y;
-  lsm_acc.z = accel.acceleration.z;
+  accel_data.x = accel.acceleration.x;
+  accel_data.y = accel.acceleration.y;
+  accel_data.z = accel.acceleration.z;
 
   // Store temperature data
-  lsm_temp = float(temp.temperature);
+  temp_data = float(temp.temperature);
 
   return true;  // Return true if read succeeds
 }

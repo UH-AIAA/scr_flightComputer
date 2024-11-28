@@ -1,6 +1,6 @@
 /* SRAD Avionics Flight Software for AIAA-UH
  *
- * Copyright (c) 2024 Nathan Samuell + Dedah (www.github.com/nathansamuell)
+ * Copyright (c) 2024 Nathan Samuell + Dedah + Tanh! (www.github.com/nathansamuell, www.github.com/UH-AIAA)
  *
  * More information on the MIT license as well as a complete copy
  * of the license can be found here: https://choosealicense.com/licenses/mit/
@@ -8,15 +8,23 @@
  * All above text must be included in any redistribution.
  */
 
+
+// I/O imports
 #include <Wire.h>
 #include <SPI.h>
 #include <SD.h>
+
+// Chip Imports
 #include <Adafruit_Sensor.h>
 #include <Adafruit_GPS.h>
 #include <Adafruit_ADXL375.h>
 #include <Adafruit_BNO055.h>
 #include <Adafruit_BMP3XX.h>
-#include <Adafruit_LSM6DSO32.h>
+// #include <Adafruit_LSM6DSO32.h> TODO: Note that this import is no longer needed here after migrating function to Sensors library
+
+// Computing imports
+#include <Quaternion.h>
+#include <Sensors.h>
 
 // Defining variables
 const uint32_t PIN_BUZZER = 33;
@@ -33,23 +41,25 @@ Adafruit_ADXL375 ADXL(ADXL_CS, &SPI, 12345);
 Adafruit_BNO055 BNO(55, 0x28, &Wire);
 Adafruit_GPS GPS(&Serial2);
 
-// Data variable assignments
-// Sensor raw data
-double lsm_gyrox, lsm_gyroy, lsm_gyroz, lsm_accx, lsm_accy, lsm_accz;
-double adxl_accx, adxl_accy, adxl_accz;
-double bno_gyrox, bno_gyroy, bno_gyroz, bno_accx, bno_accy, bno_accz;
-double bno_orientationx, bno_orientationy, bno_orientationz, bno_orientationw;
+// TODO: This data might not be all the data we're logging. 
+// sensor data
+Vector3 lsm_gyro, lsm_acc;                      // Gyroscope/Accelerometer  (LSM6DS032 Chip)
+Vector3 adxl_acc;                               // Acceleromter (AXDL375 Chip)
+Vector3 bno_gyro, bno_acc, bno_mag;             // Gyro/Accel/Magnetic Flux (BNO055 Chip)
+Quaternion bno_orientation;                     // Orientation (also BNO055)
+float lsm_temp, adxl_temp, bno_temp, bmp_temp;  // Temperature (all chips that record)
+float bmp_press, bmp_alt;                       // Barometer Pressure/Altitude (BMP388 Chip)
 
-// Temperatures
-float lsm_temp, adxl_temp, bno_temp, bmp_temp;
-
-// Barometer data
-float bmp_press, bmp_alt;
+// TODO: same here, probably doesn't have everything
+// data processing variables
 float off_alt, prev_alt, v_vel;
+Vector3 angular_offset;             // GPS has some orientation bias -- this corrects when calibrated.
+bool offset_calibrated;             // flag to tell us if we've configured this
 
 // Logging
 bool log_enable = true;
 File data;
+
 
 const String data_header =
     "time,lat,lon,"
@@ -62,23 +72,25 @@ const String data_header =
     "lsm_temp,adxl_temp,bno_temp,bmp_temp";
 
 // Sensor read functions
-bool read_LSM() {
-    sensors_event_t accel, gyro, temp;
-    if (!LSM.getEvent(&accel, &gyro, &temp)) {
-        return false;
-    }
-    lsm_gyrox = gyro.gyro.x;
-    lsm_gyroy = gyro.gyro.y;
-    lsm_gyroz = gyro.gyro.z;
+// TODO: Read the below function and check Sensors.h/Sensors.cpp for an example of how to migrate the functions
+// bool read_LSM() {
+//     sensors_event_t accel, gyro, temp;
+//     if (!LSM.getEvent(&accel, &gyro, &temp)) {
+//         return false;
+//     }
+//     lsm_gyrox = gyro.gyro.x;
+//     lsm_gyroy = gyro.gyro.y;
+//     lsm_gyroz = gyro.gyro.z;
 
-    lsm_accx = accel.acceleration.x;
-    lsm_accy = accel.acceleration.y;
-    lsm_accz = accel.acceleration.z;
+//     lsm_accx = accel.acceleration.x;
+//     lsm_accy = accel.acceleration.y;
+//     lsm_accz = accel.acceleration.z;
 
-    lsm_temp = float(temp.temperature);
-    return true;
-}
+//     lsm_temp = float(temp.temperature);
+//     return true;
+// }
 
+// TODO: Migrate to Sensors.h
 bool read_BMP() {
     if (!BMP.performReading()) {
         return false;
@@ -89,6 +101,7 @@ bool read_BMP() {
     return true;
 }
 
+// TODO: Migrate to Sensors.h
 bool read_ADXL() {
     sensors_event_t event;
     if (!ADXL.getEvent(&event)) {
@@ -102,6 +115,7 @@ bool read_ADXL() {
     return true;
 }
 
+// TODO: Migrate to Sensors.h
 bool read_BNO() {
     sensors_event_t orientationData, angVelocityData, magnetometerData, accelerometerData;
 
@@ -119,22 +133,23 @@ bool read_BNO() {
     }
 
     imu::Quaternion quat = BNO.getQuat();
-    bno_orientationw = quat.w();
-    bno_orientationx = quat.x();
-    bno_orientationy = quat.y();
-    bno_orientationz = quat.z();
+    bno_orientation.w = quat.w();
+    bno_orientation.x = quat.x();
+    bno_orientation.y = quat.y();
+    bno_orientation.z = quat.z();
 
-    bno_gyrox = angVelocityData.gyro.x;
-    bno_gyroy = angVelocityData.gyro.y;
-    bno_gyroz = angVelocityData.gyro.z;
+    bno_gyro.x = angVelocityData.gyro.x;
+    bno_gyro.y = angVelocityData.gyro.y;
+    bno_gyro.z = angVelocityData.gyro.z;
 
-    bno_accx = accelerometerData.acceleration.x;
-    bno_accy = accelerometerData.acceleration.y;
-    bno_accz = accelerometerData.acceleration.z;
+    bno_acc.x = accelerometerData.acceleration.x;
+    bno_acc.y = accelerometerData.acceleration.y;
+    bno_acc.z = accelerometerData.acceleration.z;
 
     bno_temp = float(BNO.getTemp());
     return true;
 }
+
 
 void setup() {
     // USB Serial Port
@@ -186,7 +201,7 @@ void loop() {
     read_ADXL();
     read_BMP();
     read_BNO();
-    read_LSM();
+    Sensors::read_LSM(LSM, lsm_acc, lsm_gyro, lsm_temp);  // TODO: this is how we use our migrated function. 
 
     // Update GPS
     while (GPS.available()) {
@@ -196,6 +211,7 @@ void loop() {
         GPS.parse(GPS.lastNMEA());
     }
 
+    // TODO: fix everything below to take our new functions and data structure
     // Writing data to file
     data.print(mstime); data.print(",");
     if (GPS.fix) {
