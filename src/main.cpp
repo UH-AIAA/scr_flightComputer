@@ -107,9 +107,9 @@ bool read_ADXL() {
     if (!ADXL.getEvent(&event)) {
         return false;
     }
-    adxl_accx = event.acceleration.x;
-    adxl_accy = event.acceleration.y;
-    adxl_accz = event.acceleration.z;
+    adxl_acc.x = event.acceleration.x;
+    adxl_acc.y = event.acceleration.y;
+    adxl_acc.z = event.acceleration.z;
 
     adxl_temp = float(event.temperature);
     return true;
@@ -225,16 +225,16 @@ void loop() {
         data.print("-1,No fix,-1,No fix,0,-1,-1,-1,");
     }
     // Sensor data
-    data.print(bno_orientationw, 5); data.print(",");
-    data.print(bno_orientationx, 5); data.print(",");
-    data.print(bno_orientationy, 5); data.print(",");
-    data.print(bno_orientationz, 5); data.print(",");
-    data.print(bno_accx, 4); data.print(",");
-    data.print(bno_accy, 4); data.print(",");
-    data.print(bno_accz, 4); data.print(",");
-    data.print(adxl_accx, 2); data.print(",");
-    data.print(adxl_accy, 2); data.print(",");
-    data.print(adxl_accz, 2); data.print(",");
+    data.print(bno_orientation.w, 5); data.print(",");
+    data.print(bno_orientation.x, 5); data.print(",");
+    data.print(bno_orientation.y, 5); data.print(",");
+    data.print(bno_orientation.z, 5); data.print(",");
+    data.print(bno_acc.x, 4); data.print(",");
+    data.print(bno_acc.y, 4); data.print(",");
+    data.print(bno_acc.z, 4); data.print(",");
+    data.print(adxl_acc.x, 2); data.print(",");
+    data.print(adxl_acc.y, 2); data.print(",");
+    data.print(adxl_acc.z, 2); data.print(",");
     data.print(bmp_press, 6); data.print(",");
     data.print(bmp_alt, 4); data.print(",");
     data.print(lsm_temp, 2); data.print(",");
