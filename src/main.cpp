@@ -155,7 +155,7 @@ void setup() {
     // USB Serial Port
     Serial.begin(115200);
     Serial1.begin(9600); // Radio Serial Port
-    Serial2.begin(115200); // GPS Serial Port
+    Serial2.begin(9600); // GPS Serial Port (Default hardware at 9600)
 
     // Configure LSM6DSO32
     LSM.setAccelRange(LSM6DSO32_ACCEL_RANGE_32_G);
