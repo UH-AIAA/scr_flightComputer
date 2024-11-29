@@ -25,3 +25,16 @@ bool Sensors::read_LSM(Adafruit_LSM6DSO32 &LSM, Vector3 &accel_data, Vector3 &gy
 
   return true;  // Return true if read succeeds
 }
+
+bool Sensors::read_ADXL(Adafruit_ADXL375 &ADXL, Vector3 &output_acc, float &output_temp) {
+  sensors_event_t event;
+  if (!ADXL.getEvent(&event)) {
+      return false;
+  }
+  output_acc.x = event.acceleration.x;
+  output_acc.y = event.acceleration.y;
+  output_acc.z = event.acceleration.z;
+
+  output_temp = float(event.temperature);
+  return true;
+}
