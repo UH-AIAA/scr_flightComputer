@@ -13,6 +13,8 @@
 
 namespace Sensors {
     bool read_LSM(Adafruit_LSM6DSO32 &, Vector3 &, Vector3 &, float &);
+    bool read_BMP(Adafruit_BMP3XX &, float &, float &, float &);
 };
+
 
 #endif

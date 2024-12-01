@@ -19,7 +19,7 @@
 #include <Adafruit_GPS.h>
 #include <Adafruit_ADXL375.h>
 #include <Adafruit_BNO055.h>
-#include <Adafruit_BMP3XX.h>
+// #include <Adafruit_BMP3XX.h>
 // #include <Adafruit_LSM6DSO32.h> TODO: Note that this import is no longer needed here after migrating function to Sensors library
 
 // Computing imports
@@ -90,16 +90,16 @@ const String data_header =
 //     return true;
 // }
 
-// TODO: Migrate to Sensors.h
-bool read_BMP() {
-    if (!BMP.performReading()) {
-        return false;
-    }
-    bmp_temp = BMP.temperature;
-    bmp_press = BMP.pressure;
-    bmp_alt = BMP.readAltitude(1013.25) - off_alt;
-    return true;
-}
+// TODO: Migrate to Sensors.h (done)
+// bool read_BMP() {
+//     if (!BMP.performReading()) {
+//         return false;
+//     }
+//     bmp_temp = BMP.temperature;
+//     bmp_press = BMP.pressure;
+//     bmp_alt = BMP.readAltitude(1013.25) - off_alt;
+//     return true;
+// }
 
 // TODO: Migrate to Sensors.h
 bool read_ADXL() {
@@ -199,7 +199,7 @@ void setup() {
 void loop() {
     mstime = millis();
     read_ADXL();
-    read_BMP();
+    bool Sensors::read_BMP(BMP, bmp_temp, bmp_press, bmp_alt));
     read_BNO();
     Sensors::read_LSM(LSM, lsm_acc, lsm_gyro, lsm_temp);  // TODO: this is how we use our migrated function. 
 
