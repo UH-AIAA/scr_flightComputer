@@ -1,6 +1,6 @@
 /* SRAD Avionics Flight Software for AIAA-UH
  *
- * Copyright (c) 2024 Nathan Samuell + Dedah + Tanh! (www.github.com/nathansamuell, www.github.com/UH-AIAA)
+ * Copyright (c) 2024 Nathan Samuell + Dedah + Thanh! (www.github.com/nathansamuell, www.github.com/UH-AIAA)
  *
  * More information on the MIT license as well as a complete copy
  * of the license can be found here: https://choosealicense.com/licenses/mit/
@@ -17,7 +17,6 @@
 // Chip Imports
 #include <Adafruit_Sensor.h>
 #include <Adafruit_GPS.h>
-#include <Adafruit_ADXL375.h>
 #include <Adafruit_BNO055.h>
 // #include <Adafruit_BMP3XX.h>
 // #include <Adafruit_LSM6DSO32.h> TODO: Note that this import is no longer needed here after migrating function to Sensors library
@@ -47,8 +46,8 @@ Vector3 lsm_gyro, lsm_acc;                      // Gyroscope/Accelerometer  (LSM
 Vector3 adxl_acc;                               // Acceleromter (AXDL375 Chip)
 Vector3 bno_gyro, bno_acc, bno_mag;             // Gyro/Accel/Magnetic Flux (BNO055 Chip)
 Quaternion bno_orientation;                     // Orientation (also BNO055)
-float lsm_temp, adxl_temp, bno_temp, bmp_temp;  // Temperature (all chips that record)
-float bmp_press, bmp_alt;                       // Barometer Pressure/Altitude (BMP388 Chip)
+float lsm_temp, adxl_temp, bno_temp;  // Temperature (all chips that record)
+float bmp_temp, bmp_press, bmp_alt;                       // Barometer Pressure/Altitude (BMP388 Chip)
 
 // TODO: same here, probably doesn't have everything
 // data processing variables
@@ -70,50 +69,6 @@ const String data_header =
     "adxl_accel_x,adxl_accel_y,adxl_accel_z,"
     "pressure,altitude,"
     "lsm_temp,adxl_temp,bno_temp,bmp_temp";
-
-// Sensor read functions
-// TODO: Read the below function and check Sensors.h/Sensors.cpp for an example of how to migrate the functions
-// bool read_LSM() {
-//     sensors_event_t accel, gyro, temp;
-//     if (!LSM.getEvent(&accel, &gyro, &temp)) {
-//         return false;
-//     }
-//     lsm_gyrox = gyro.gyro.x;
-//     lsm_gyroy = gyro.gyro.y;
-//     lsm_gyroz = gyro.gyro.z;
-
-//     lsm_accx = accel.acceleration.x;
-//     lsm_accy = accel.acceleration.y;
-//     lsm_accz = accel.acceleration.z;
-
-//     lsm_temp = float(temp.temperature);
-//     return true;
-// }
-
-// TODO: Migrate to Sensors.h (done)
-// bool read_BMP() {
-//     if (!BMP.performReading()) {
-//         return false;
-//     }
-//     bmp_temp = BMP.temperature;
-//     bmp_press = BMP.pressure;
-//     bmp_alt = BMP.readAltitude(1013.25) - off_alt;
-//     return true;
-// }
-
-// TODO: Migrate to Sensors.h
-bool read_ADXL() {
-    sensors_event_t event;
-    if (!ADXL.getEvent(&event)) {
-        return false;
-    }
-    adxl_acc.x = event.acceleration.x;
-    adxl_acc.y = event.acceleration.y;
-    adxl_acc.z = event.acceleration.z;
-
-    adxl_temp = float(event.temperature);
-    return true;
-}
 
 // TODO: Migrate to Sensors.h
 bool read_BNO() {
@@ -198,8 +153,8 @@ void setup() {
 
 void loop() {
     mstime = millis();
-    read_ADXL();
-    bool Sensors::read_BMP(BMP, bmp_temp, bmp_press, bmp_alt));
+    Sensors::read_BMP(BMP, bmp_temp, bmp_press, bmp_alt));
+    Sensors::read_ADXL(ADXL, adxl_acc, adxl_temp);
     read_BNO();
     Sensors::read_LSM(LSM, lsm_acc, lsm_gyro, lsm_temp);  // TODO: this is how we use our migrated function. 
 
