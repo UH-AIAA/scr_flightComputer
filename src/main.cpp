@@ -17,7 +17,7 @@
 // Chip Imports
 #include <Adafruit_Sensor.h>
 #include <Adafruit_GPS.h>
-#include <Adafruit_BNO055.h>
+//#include <Adafruit_BNO055.h>
 // #include <Adafruit_BMP3XX.h>
 // #include <Adafruit_LSM6DSO32.h> TODO: Note that this import is no longer needed here after migrating function to Sensors library
 
@@ -70,40 +70,7 @@ const String data_header =
     "pressure,altitude,"
     "lsm_temp,adxl_temp,bno_temp,bmp_temp";
 
-// TODO: Migrate to Sensors.h
-bool read_BNO() {
-    sensors_event_t orientationData, angVelocityData, magnetometerData, accelerometerData;
 
-    if (!BNO.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER)) {
-        return false;
-    }
-    if (!BNO.getEvent(&angVelocityData, Adafruit_BNO055::VECTOR_GYROSCOPE)) {
-        return false;
-    }
-    if (!BNO.getEvent(&magnetometerData, Adafruit_BNO055::VECTOR_MAGNETOMETER)) {
-        return false;
-    }
-    if (!BNO.getEvent(&accelerometerData, Adafruit_BNO055::VECTOR_ACCELEROMETER)) {
-        return false;
-    }
-
-    imu::Quaternion quat = BNO.getQuat();
-    bno_orientation.w = quat.w();
-    bno_orientation.x = quat.x();
-    bno_orientation.y = quat.y();
-    bno_orientation.z = quat.z();
-
-    bno_gyro.x = angVelocityData.gyro.x;
-    bno_gyro.y = angVelocityData.gyro.y;
-    bno_gyro.z = angVelocityData.gyro.z;
-
-    bno_acc.x = accelerometerData.acceleration.x;
-    bno_acc.y = accelerometerData.acceleration.y;
-    bno_acc.z = accelerometerData.acceleration.z;
-
-    bno_temp = float(BNO.getTemp());
-    return true;
-}
 
 
 void setup() {
@@ -155,7 +122,7 @@ void loop() {
     mstime = millis();
     Sensors::read_BMP(BMP, bmp_temp, bmp_press, bmp_alt));
     Sensors::read_ADXL(ADXL, adxl_acc, adxl_temp);
-    read_BNO();
+    Sensors::read_BNO(BNO, bno_orientation, bno_gyro, bno_acc, bno_temp);
     Sensors::read_LSM(LSM, lsm_acc, lsm_gyro, lsm_temp);  // TODO: this is how we use our migrated function. 
 
     // Update GPS
