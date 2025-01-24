@@ -27,13 +27,13 @@ bool Sensors::read_LSM(Adafruit_LSM6DSO32 &LSM, Vector3 &accel_data, Vector3 &gy
 }
 
 //BMP sensor (Temp & Pressure)
-bool Sensors::read_BMP(Adafruit_BMP3XX &BMP, float &bmp_temperature, float &pressure, float &altitude) {
+bool Sensors::read_BMP(Adafruit_BMP3XX &BMP, float &bmp_temperature, float &pressure, float &altitude, float &altitude_offset) {
     if (!BMP.performReading()) {
         return false;
     }
     bmp_temperature = BMP.temperature;
     pressure = BMP.pressure;
-    altitude = BMP.readAltitude(1013.25) - off_alt;
+    altitude = BMP.readAltitude(1013.25) - altitude_offset;
     return true;
 }
 

@@ -120,7 +120,7 @@ void setup() {
 
 void loop() {
     mstime = millis();
-    Sensors::read_BMP(BMP, bmp_temp, bmp_press, bmp_alt));
+    Sensors::read_BMP(BMP, bmp_temp, bmp_press, bmp_alt, off_alt);
     Sensors::read_ADXL(ADXL, adxl_acc, adxl_temp);
     Sensors::read_BNO(BNO, bno_orientation, bno_gyro, bno_acc, bno_temp);
     Sensors::read_LSM(LSM, lsm_acc, lsm_gyro, lsm_temp);  // TODO: this is how we use our migrated function. 

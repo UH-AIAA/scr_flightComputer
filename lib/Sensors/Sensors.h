@@ -13,9 +13,9 @@
 
 namespace Sensors {
     bool read_LSM(Adafruit_LSM6DSO32 &, Vector3 &, Vector3 &, float &);
-    bool read_BMP(Adafruit_BMP3XX &, float &, float &, float &);
+    bool read_BMP(Adafruit_BMP3XX &, float &, float &, float &, float &);
     bool read_ADXL(Adafruit_ADXL375 &, Vector3 &, float &);
-    bool read_BNO(Adafruit_BNO055 &, Quaternion &, Vector3 &, Vector3 &, float &)
+    bool read_BNO(Adafruit_BNO055 &, Quaternion &, Vector3 &, Vector3 &, float &);
 };
 
 
