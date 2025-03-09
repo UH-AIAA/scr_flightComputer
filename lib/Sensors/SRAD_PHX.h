@@ -1,5 +1,5 @@
-#ifndef SENSORS_H
-#define SENSORS_H
+#ifndef SRAD_PHX_H
+#define SRAD_PHX_H
 
 #include <Arduino.h>
 #include <Adafruit_Sensor.h>
@@ -11,12 +11,24 @@
 
 #include <Quaternion.h>
 
+enum class Flight {
+    PRE_NO_CAL,
+    PRE_CAL,
+    FLIGHT_ASCENT,
+    FLIGHT_DESCENT,
+    POST_LANDED,
+};
+
 namespace Sensors {
     bool read_LSM(Adafruit_LSM6DSO32 &, Vector3 &, Vector3 &, float &);
     bool read_BMP(Adafruit_BMP3XX &, float &, float &, float &, float &);
     bool read_ADXL(Adafruit_ADXL375 &, Vector3 &, float &);
     bool read_BNO(Adafruit_BNO055 &, Quaternion &, Vector3 &, Vector3 &, float &);
 };
+
+namespace Flight {
+    void calculateState();
+}
 
 
 #endif

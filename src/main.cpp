@@ -23,7 +23,7 @@
 
 // Computing imports
 #include <Quaternion.h>
-#include <Sensors.h>
+#include <SRAD_PHX.h>
 
 // Defining variables
 const uint32_t PIN_BUZZER = 33;
