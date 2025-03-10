@@ -40,14 +40,7 @@ Adafruit_ADXL375 ADXL(ADXL_CS, &SPI, 12345);
 Adafruit_BNO055 BNO(55, 0x28, &Wire);
 Adafruit_GPS GPS(&Serial2);
 
-// TODO: This data might not be all the data we're logging. 
-// sensor data
-Vector3 lsm_gyro, lsm_acc;                      // Gyroscope/Accelerometer  (LSM6DS032 Chip)
-Vector3 adxl_acc;                               // Acceleromter (AXDL375 Chip)
-Vector3 bno_gyro, bno_acc, bno_mag;             // Gyro/Accel/Magnetic Flux (BNO055 Chip)
-Quaternion bno_orientation;                     // Orientation (also BNO055)
-float lsm_temp, adxl_temp, bno_temp;  // Temperature (all chips that record)
-float bmp_temp, bmp_press, bmp_alt;                       // Barometer Pressure/Altitude (BMP388 Chip)
+FlightData currentData;
 
 // TODO: same here, probably doesn't have everything
 // data processing variables
@@ -120,10 +113,10 @@ void setup() {
 
 void loop() {
     mstime = millis();
-    Sensors::read_BMP(BMP, bmp_temp, bmp_press, bmp_alt, off_alt);
-    Sensors::read_ADXL(ADXL, adxl_acc, adxl_temp);
-    Sensors::read_BNO(BNO, bno_orientation, bno_gyro, bno_acc, bno_temp);
-    Sensors::read_LSM(LSM, lsm_acc, lsm_gyro, lsm_temp);  // TODO: this is how we use our migrated function. 
+    Sensors::read_BMP(BMP, currentData);
+    Sensors::read_ADXL(ADXL, currentData);
+    Sensors::read_BNO(BNO, currentData);
+    Sensors::read_LSM(LSM, currentData);
 
     // Update GPS
     while (GPS.available()) {
@@ -147,22 +140,22 @@ void loop() {
         data.print("-1,No fix,-1,No fix,0,-1,-1,-1,");
     }
     // Sensor data
-    data.print(bno_orientation.w, 5); data.print(",");
-    data.print(bno_orientation.x, 5); data.print(",");
-    data.print(bno_orientation.y, 5); data.print(",");
-    data.print(bno_orientation.z, 5); data.print(",");
-    data.print(bno_acc.x, 4); data.print(",");
-    data.print(bno_acc.y, 4); data.print(",");
-    data.print(bno_acc.z, 4); data.print(",");
-    data.print(adxl_acc.x, 2); data.print(",");
-    data.print(adxl_acc.y, 2); data.print(",");
-    data.print(adxl_acc.z, 2); data.print(",");
-    data.print(bmp_press, 6); data.print(",");
-    data.print(bmp_alt, 4); data.print(",");
-    data.print(lsm_temp, 2); data.print(",");
-    data.print(adxl_temp, 2); data.print(",");
-    data.print(bno_temp, 2); data.print(",");
-    data.print(bmp_temp, 2); data.println();
+    data.print(currentData.bno_orientation.w, 5); data.print(",");
+    data.print(currentData.bno_orientation.x, 5); data.print(",");
+    data.print(currentData.bno_orientation.y, 5); data.print(",");
+    data.print(currentData.bno_orientation.z, 5); data.print(",");
+    data.print(currentData.bno_acc.x, 4); data.print(",");
+    data.print(currentData.bno_acc.y, 4); data.print(",");
+    data.print(currentData.bno_acc.z, 4); data.print(",");
+    data.print(currentData.adxl_acc.x, 2); data.print(",");
+    data.print(currentData.adxl_acc.y, 2); data.print(",");
+    data.print(currentData.adxl_acc.z, 2); data.print(",");
+    data.print(currentData.bmp_press, 6); data.print(",");
+    data.print(currentData.bmp_alt, 4); data.print(",");
+    data.print(currentData.lsm_temp, 2); data.print(",");
+    data.print(currentData.adxl_temp, 2); data.print(",");
+    data.print(currentData.bno_temp, 2); data.print(",");
+    data.print(currentData.bmp_temp, 2); data.println();
     data.flush();
 
     delay(50);
