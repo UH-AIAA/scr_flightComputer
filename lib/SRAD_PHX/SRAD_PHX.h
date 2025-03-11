@@ -51,8 +51,9 @@ class FLIGHT {
         bool read_BMP(Adafruit_BMP3XX &);
         bool read_ADXL(Adafruit_ADXL375 &);
         bool read_BNO(Adafruit_BNO055 &);
+        void incrementTime();
         void writeSD();
-        void writeHAM();
+        void writeXBEE();
 
         // helper functions
         bool isCal();

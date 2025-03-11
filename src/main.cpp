@@ -33,6 +33,12 @@ const uint32_t BMP_CS = 41;
 const uint32_t ADXL_CS = 39;
 int32_t mstime;
 
+// config thresholds
+#define accel_liftoff_threshold                    30  // METERS PER SECOND^2
+#define accel_liftoff_time_threshold              250  // MILLISECONDS
+#define land_time_threshold                     30000  // MILLISECONDS
+#define land_altitude_threshold                    50  // METERS
+
 // Assigning IDs to sensors
 Adafruit_LSM6DSO32 LSM;
 Adafruit_BMP3XX BMP;
@@ -41,12 +47,7 @@ Adafruit_BNO055 BNO(55, 0x28, &Wire);
 Adafruit_GPS GPS(&Serial2);
 
 FlightData currentData;
-
-// TODO: same here, probably doesn't have everything
-// data processing variables
-float off_alt, prev_alt, v_vel;
-Vector3 angular_offset;             // GPS has some orientation bias -- this corrects when calibrated.
-bool offset_calibrated;             // flag to tell us if we've configured this
+FLIGHT OPS = FLIGHT(accel_liftoff_threshold, accel_liftoff_time_threshold, land_time_threshold, land_altitude_threshold, currentData);
 
 // Logging
 bool log_enable = true;
@@ -113,10 +114,10 @@ void setup() {
 
 void loop() {
     mstime = millis();
-    Sensors::read_BMP(BMP, currentData);
-    Sensors::read_ADXL(ADXL, currentData);
-    Sensors::read_BNO(BNO, currentData);
-    Sensors::read_LSM(LSM, currentData);
+    OPS.read_BMP(BMP);
+    OPS.read_ADXL(ADXL);
+    OPS.read_BNO(BNO);
+    OPS.read_LSM(LSM);
 
     // Update GPS
     while (GPS.available()) {

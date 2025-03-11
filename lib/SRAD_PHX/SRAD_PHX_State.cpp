@@ -33,7 +33,18 @@ bool FLIGHT::isCal() {
     return calibrated;
 }
 bool FLIGHT::isAscent() {
+    static uint32_t liftoff_timer;
+    
+    if(output.lsm_acc.z > accel_liftoff_threshold) {
+        // increment liftoff timer with delta time when completed
 
+        if(liftoff_timer > accel_liftoff_time_threshold) {
+            return true;
+        }
+    } else {
+        liftoff_timer = 0;
+    }
+    return false;
 }
 bool FLIGHT::isDescent() {
 
