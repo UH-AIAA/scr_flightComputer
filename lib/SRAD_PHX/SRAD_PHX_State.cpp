@@ -10,7 +10,6 @@
 
 #include "SRAD_PHX.h"
 
-
 void FLIGHT::calculateState() {
     switch(STATE) {
         case(STATES::PRE_NO_CAL):
