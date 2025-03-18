@@ -95,3 +95,22 @@ bool FLIGHT::read_BNO(Adafruit_BNO055 &BNO) {
     output.bno_temp = float(BNO.getTemp());
     return true;
 }
+
+bool FLIGHT::read_GPS(Adafruit_GPS &GPS) {
+    last_gps = GPS;                     // update the last-used GPS pointer
+    uint32_t startms = millis();        // starting time
+    uint32_t timeout = startms + 500;   // if GPS doesn't receive new NMEA after 500ms, times out to prevent blocking
+    while (true) {
+        startms = millis();
+        if(startms > timeout) {
+            return false;
+        } else if(GPS.available()) {
+            GPS.read();
+            if (GPS.newNMEAreceived()) {
+                GPS.parse(GPS.lastNMEA());
+                return true;
+            }
+        }
+        return false;
+    }
+}

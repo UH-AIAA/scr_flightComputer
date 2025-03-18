@@ -47,13 +47,6 @@ Adafruit_BNO055 BNO(55, 0x28, &Wire);
 Adafruit_GPS GPS(&Serial2);
 
 FlightData currentData;
-FLIGHT OPS = FLIGHT(accel_liftoff_threshold, accel_liftoff_time_threshold, land_time_threshold, land_altitude_threshold, currentData);
-
-// Logging
-bool log_enable = true;
-File data;
-
-
 const String data_header =
     "time,lat,lon,"
     "satellites,speed,g_angle,gps_alt,"
@@ -64,8 +57,11 @@ const String data_header =
     "pressure,altitude,"
     "lsm_temp,adxl_temp,bno_temp,bmp_temp";
 
+FLIGHT OPS = FLIGHT(accel_liftoff_threshold, accel_liftoff_time_threshold, land_time_threshold, land_altitude_threshold, data_header, currentData);
 
-
+// Logging
+bool log_enable = true;
+File data;
 
 void setup() {
     // USB Serial Port
@@ -118,14 +114,7 @@ void loop() {
     OPS.read_ADXL(ADXL);
     OPS.read_BNO(BNO);
     OPS.read_LSM(LSM);
-
-    // Update GPS
-    while (GPS.available()) {
-        GPS.read();
-    }
-    if (GPS.newNMEAreceived()) {
-        GPS.parse(GPS.lastNMEA());
-    }
+    OPS.read_GPS(GPS);
 
     // TODO: fix everything below to take our new functions and data structure
     // Writing data to file

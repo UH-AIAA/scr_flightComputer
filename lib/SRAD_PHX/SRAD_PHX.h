@@ -40,9 +40,9 @@ enum STATES {
 class FLIGHT {
     public:
         // initial constructor
-        FLIGHT(int a1, int a2, int l1, int l2, FlightData& o) 
+        FLIGHT(int a1, int a2, int l1, int l2, String h, FlightData& o) 
         : accel_liftoff_threshold(a1), accel_liftoff_time_threshold(a2), 
-        land_time_threshold(l1), land_altitude_threshold(l2), output(o) {
+        land_time_threshold(l1), land_altitude_threshold(l2), data_header(h), output(o) {
             STATE = STATES::PRE_NO_CAL;
             runningTime_ms = 0;
         }
@@ -55,9 +55,10 @@ class FLIGHT {
         bool read_BMP(Adafruit_BMP3XX &);
         bool read_ADXL(Adafruit_ADXL375 &);
         bool read_BNO(Adafruit_BNO055 &);
+        bool read_GPS(Adafruit_GPS &);
         void incrementTime();
         void writeSD(bool, File&);
-        void writeXBEE(bool);
+        void writeSERIAL(bool, HardwareSerial&);
 
         // helper functions
         bool isCal();
@@ -73,6 +74,8 @@ class FLIGHT {
         int land_altitude_threshold;        // METERS
         
         FlightData& output;
+        String data_header;
+        Adafruit_GPS& last_gps;             // used for data collection, for some reason the GPS stores it
         uint16_t deltaTime_ms;
         uint64_t runningTime_ms;
 
