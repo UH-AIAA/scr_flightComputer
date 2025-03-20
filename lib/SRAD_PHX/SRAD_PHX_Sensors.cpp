@@ -111,6 +111,5 @@ bool FLIGHT::read_GPS(Adafruit_GPS &GPS) {
                 return true;
             }
         }
-        return false;
     }
 }

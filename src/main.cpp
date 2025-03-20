@@ -104,8 +104,8 @@ void setup() {
     data = SD.open(dataname, FILE_WRITE);
 
     // Print data header
-    data.println(data_header);
-    data.flush();
+    OPS.writeSD(true, data);
+    OPS.writeSERIAL(true, Serial1);
 }
 
 void loop() {
@@ -115,38 +115,8 @@ void loop() {
     OPS.read_BNO(BNO);
     OPS.read_LSM(LSM);
     OPS.read_GPS(GPS);
-
-    // TODO: fix everything below to take our new functions and data structure
-    // Writing data to file
-    data.print(mstime); data.print(",");
-    if (GPS.fix) {
-        data.print(GPS.latitudeDegrees, 6); data.print(",");
-        data.print(GPS.longitudeDegrees, 6); data.print(",");
-        data.print((int32_t)GPS.satellites); data.print(",");
-        data.print(GPS.speed, 3); data.print(",");
-        data.print(GPS.angle, 3); data.print(",");
-        data.print(GPS.altitude, 3); data.print(",");
-    } else {
-        data.print("-1,No fix,-1,No fix,0,-1,-1,-1,");
-    }
-    // Sensor data
-    data.print(currentData.bno_orientation.w, 5); data.print(",");
-    data.print(currentData.bno_orientation.x, 5); data.print(",");
-    data.print(currentData.bno_orientation.y, 5); data.print(",");
-    data.print(currentData.bno_orientation.z, 5); data.print(",");
-    data.print(currentData.bno_acc.x, 4); data.print(",");
-    data.print(currentData.bno_acc.y, 4); data.print(",");
-    data.print(currentData.bno_acc.z, 4); data.print(",");
-    data.print(currentData.adxl_acc.x, 2); data.print(",");
-    data.print(currentData.adxl_acc.y, 2); data.print(",");
-    data.print(currentData.adxl_acc.z, 2); data.print(",");
-    data.print(currentData.bmp_press, 6); data.print(",");
-    data.print(currentData.bmp_alt, 4); data.print(",");
-    data.print(currentData.lsm_temp, 2); data.print(",");
-    data.print(currentData.adxl_temp, 2); data.print(",");
-    data.print(currentData.bno_temp, 2); data.print(",");
-    data.print(currentData.bmp_temp, 2); data.println();
-    data.flush();
+    OPS.writeSD(false, data);
+    OPS.writeSERIAL(false, Serial1);
 
     delay(50);
 
