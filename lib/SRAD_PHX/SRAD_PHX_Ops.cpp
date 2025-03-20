@@ -56,7 +56,7 @@ void FLIGHT::writeSD(bool headers, File& outputFile) {
     return;
 }
 
-void FLIGHT::writeSERIAL(bool headers, HardwareSerial &Serial1) {
+void FLIGHT::writeSERIAL(bool headers, Stream &Serial1) {
     if(headers) {
         Serial1.println(data_header);
         Serial1.flush();

@@ -21,6 +21,15 @@
 // Computing imports
 #include <SRAD_PHX.h>
 
+// Debug (comment out to turn off debug output)
+#define DEBUG
+
+// config thresholds
+#define accel_liftoff_threshold                    30  // METERS PER SECOND^2
+#define accel_liftoff_time_threshold              250  // MILLISECONDS
+#define land_time_threshold                     30000  // MILLISECONDS
+#define land_altitude_threshold                    50  // METERS
+
 // Defining variables
 const uint32_t PIN_BUZZER = 33;
 const uint32_t PIN_LED = 29;
@@ -28,12 +37,6 @@ const uint32_t LSM_CS = 40;
 const uint32_t BMP_CS = 41;
 const uint32_t ADXL_CS = 39;
 int32_t mstime;
-
-// config thresholds
-#define accel_liftoff_threshold                    30  // METERS PER SECOND^2
-#define accel_liftoff_time_threshold              250  // MILLISECONDS
-#define land_time_threshold                     30000  // MILLISECONDS
-#define land_altitude_threshold                    50  // METERS
 
 // Assigning IDs to sensors
 Adafruit_LSM6DSO32 LSM;
@@ -102,6 +105,10 @@ void setup() {
     // Print data header
     OPS.writeSD(true, data);
     OPS.writeSERIAL(true, Serial1);
+
+    #ifdef DEBUG
+        OPS.writeSERIAL(true, Serial);
+    #endif
 }
 
 void loop() {
@@ -116,7 +123,7 @@ void loop() {
 
     delay(50);
 
-    // Debugging information
-    Serial.print(F("Longitude: ")); Serial.print(GPS.longitude); Serial.print(" ");
-    Serial.print(F("Latitude: ")); Serial.print(GPS.latitude); Serial.print(" ");
+    #ifdef DEBUG
+        OPS.writeSERIAL(false, Serial);
+    #endif
 }

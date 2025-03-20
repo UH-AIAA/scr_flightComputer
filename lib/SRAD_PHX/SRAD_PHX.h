@@ -57,8 +57,8 @@ class FLIGHT {
         bool read_BNO(Adafruit_BNO055 &);
         bool read_GPS(Adafruit_GPS &);
         void incrementTime();
-        void writeSD(bool, File&);
-        void writeSERIAL(bool, HardwareSerial&);
+        void writeSD(bool, File &);
+        void writeSERIAL(bool, Stream &);  // Strema allows Teensy USB as well
 
         // helper functions
         bool isCal();
