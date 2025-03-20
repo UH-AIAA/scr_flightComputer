@@ -17,13 +17,9 @@
 // Chip Imports
 #include <Adafruit_Sensor.h>
 #include <Adafruit_GPS.h>
-//#include <Adafruit_BNO055.h>
-// #include <Adafruit_BMP3XX.h>
-// #include <Adafruit_LSM6DSO32.h> TODO: Note that this import is no longer needed here after migrating function to Sensors library
 
 // Computing imports
-#include <Quaternion.h>
-#include <Sensors.h>
+#include <SRAD_PHX.h>
 
 // Defining variables
 const uint32_t PIN_BUZZER = 33;
@@ -33,6 +29,12 @@ const uint32_t BMP_CS = 41;
 const uint32_t ADXL_CS = 39;
 int32_t mstime;
 
+// config thresholds
+#define accel_liftoff_threshold                    30  // METERS PER SECOND^2
+#define accel_liftoff_time_threshold              250  // MILLISECONDS
+#define land_time_threshold                     30000  // MILLISECONDS
+#define land_altitude_threshold                    50  // METERS
+
 // Assigning IDs to sensors
 Adafruit_LSM6DSO32 LSM;
 Adafruit_BMP3XX BMP;
@@ -40,26 +42,7 @@ Adafruit_ADXL375 ADXL(ADXL_CS, &SPI, 12345);
 Adafruit_BNO055 BNO(55, 0x28, &Wire);
 Adafruit_GPS GPS(&Serial2);
 
-// TODO: This data might not be all the data we're logging. 
-// sensor data
-Vector3 lsm_gyro, lsm_acc;                      // Gyroscope/Accelerometer  (LSM6DS032 Chip)
-Vector3 adxl_acc;                               // Acceleromter (AXDL375 Chip)
-Vector3 bno_gyro, bno_acc, bno_mag;             // Gyro/Accel/Magnetic Flux (BNO055 Chip)
-Quaternion bno_orientation;                     // Orientation (also BNO055)
-float lsm_temp, adxl_temp, bno_temp;  // Temperature (all chips that record)
-float bmp_temp, bmp_press, bmp_alt;                       // Barometer Pressure/Altitude (BMP388 Chip)
-
-// TODO: same here, probably doesn't have everything
-// data processing variables
-float off_alt, prev_alt, v_vel;
-Vector3 angular_offset;             // GPS has some orientation bias -- this corrects when calibrated.
-bool offset_calibrated;             // flag to tell us if we've configured this
-
-// Logging
-bool log_enable = true;
-File data;
-
-
+FlightData currentData;
 const String data_header =
     "time,lat,lon,"
     "satellites,speed,g_angle,gps_alt,"
@@ -70,8 +53,11 @@ const String data_header =
     "pressure,altitude,"
     "lsm_temp,adxl_temp,bno_temp,bmp_temp";
 
+FLIGHT OPS = FLIGHT(accel_liftoff_threshold, accel_liftoff_time_threshold, land_time_threshold, land_altitude_threshold, data_header, currentData);
 
-
+// Logging
+bool log_enable = true;
+File data;
 
 void setup() {
     // USB Serial Port
@@ -114,56 +100,19 @@ void setup() {
     data = SD.open(dataname, FILE_WRITE);
 
     // Print data header
-    data.println(data_header);
-    data.flush();
+    OPS.writeSD(true, data);
+    OPS.writeSERIAL(true, Serial1);
 }
 
 void loop() {
-    mstime = millis();
-    Sensors::read_BMP(BMP, bmp_temp, bmp_press, bmp_alt, off_alt);
-    Sensors::read_ADXL(ADXL, adxl_acc, adxl_temp);
-    Sensors::read_BNO(BNO, bno_orientation, bno_gyro, bno_acc, bno_temp);
-    Sensors::read_LSM(LSM, lsm_acc, lsm_gyro, lsm_temp);  // TODO: this is how we use our migrated function. 
-
-    // Update GPS
-    while (GPS.available()) {
-        GPS.read();
-    }
-    if (GPS.newNMEAreceived()) {
-        GPS.parse(GPS.lastNMEA());
-    }
-
-    // TODO: fix everything below to take our new functions and data structure
-    // Writing data to file
-    data.print(mstime); data.print(",");
-    if (GPS.fix) {
-        data.print(GPS.latitudeDegrees, 6); data.print(",");
-        data.print(GPS.longitudeDegrees, 6); data.print(",");
-        data.print((int32_t)GPS.satellites); data.print(",");
-        data.print(GPS.speed, 3); data.print(",");
-        data.print(GPS.angle, 3); data.print(",");
-        data.print(GPS.altitude, 3); data.print(",");
-    } else {
-        data.print("-1,No fix,-1,No fix,0,-1,-1,-1,");
-    }
-    // Sensor data
-    data.print(bno_orientation.w, 5); data.print(",");
-    data.print(bno_orientation.x, 5); data.print(",");
-    data.print(bno_orientation.y, 5); data.print(",");
-    data.print(bno_orientation.z, 5); data.print(",");
-    data.print(bno_acc.x, 4); data.print(",");
-    data.print(bno_acc.y, 4); data.print(",");
-    data.print(bno_acc.z, 4); data.print(",");
-    data.print(adxl_acc.x, 2); data.print(",");
-    data.print(adxl_acc.y, 2); data.print(",");
-    data.print(adxl_acc.z, 2); data.print(",");
-    data.print(bmp_press, 6); data.print(",");
-    data.print(bmp_alt, 4); data.print(",");
-    data.print(lsm_temp, 2); data.print(",");
-    data.print(adxl_temp, 2); data.print(",");
-    data.print(bno_temp, 2); data.print(",");
-    data.print(bmp_temp, 2); data.println();
-    data.flush();
+    OPS.incrementTime();
+    OPS.read_BMP(BMP);
+    OPS.read_ADXL(ADXL);
+    OPS.read_BNO(BNO);
+    OPS.read_LSM(LSM);
+    OPS.read_GPS(GPS);
+    OPS.writeSD(false, data);
+    OPS.writeSERIAL(false, Serial1);
 
     delay(50);
 
