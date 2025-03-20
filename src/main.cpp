@@ -17,12 +17,8 @@
 // Chip Imports
 #include <Adafruit_Sensor.h>
 #include <Adafruit_GPS.h>
-//#include <Adafruit_BNO055.h>
-// #include <Adafruit_BMP3XX.h>
-// #include <Adafruit_LSM6DSO32.h> TODO: Note that this import is no longer needed here after migrating function to Sensors library
 
 // Computing imports
-#include <Quaternion.h>
 #include <SRAD_PHX.h>
 
 // Defining variables
@@ -109,7 +105,7 @@ void setup() {
 }
 
 void loop() {
-    mstime = millis();
+    OPS.incrementTime();
     OPS.read_BMP(BMP);
     OPS.read_ADXL(ADXL);
     OPS.read_BNO(BNO);
