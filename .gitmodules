@@ -1,0 +1,3 @@
+[submodule "lib/SRAD_PHX"]
+	path = lib/SRAD_PHX
+	url = git@github.com:UH-AIAA/SRAD_PHX.git
