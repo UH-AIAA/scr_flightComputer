@@ -94,6 +94,9 @@ void setup() {
     GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_ALLDATA);
     GPS.sendCommand(PMTK_SET_NMEA_UPDATE_10HZ);
 
+    // init SD card
+    SD.begin(BUILTIN_SDCARD);
+
     // Create data logging file
     char dataname[17] = "FL0.csv";
     for (int i = 0; SD.exists(dataname); i++) {
