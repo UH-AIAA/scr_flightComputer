@@ -10,6 +10,7 @@
 
 
 // I/O imports
+#include <Arduino.h>
 #include <Wire.h>
 #include <SPI.h>
 #include <SD.h>
@@ -56,7 +57,7 @@ const String data_header =
     "pressure,altitude,"
     "lsm_temp,adxl_temp,bno_temp,bmp_temp";
 
-FLIGHT OPS = FLIGHT(accel_liftoff_threshold, accel_liftoff_time_threshold, land_time_threshold, land_altitude_threshold, data_header, currentData);
+FLIGHT OPS = FLIGHT(accel_liftoff_threshold, accel_liftoff_time_threshold, land_time_threshold, land_altitude_threshold, data_header, GPS, currentData);
 
 // Logging
 bool log_enable = true;
@@ -93,6 +94,9 @@ void setup() {
     GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_ALLDATA);
     GPS.sendCommand(PMTK_SET_NMEA_UPDATE_10HZ);
 
+    // init SD card
+    SD.begin(BUILTIN_SDCARD);
+
     // Create data logging file
     char dataname[17] = "FL0.csv";
     for (int i = 0; SD.exists(dataname); i++) {
@@ -107,23 +111,27 @@ void setup() {
     OPS.writeSERIAL(true, Serial1);
 
     #ifdef DEBUG
+        Serial.println("calling WriteSerial with headers = false");
         OPS.writeSERIAL(true, Serial);
     #endif
 }
 
 void loop() {
     OPS.incrementTime();
+    
     OPS.read_BMP(BMP);
     OPS.read_ADXL(ADXL);
     OPS.read_BNO(BNO);
     OPS.read_LSM(LSM);
     OPS.read_GPS(GPS);
+    
     OPS.writeSD(false, data);
     OPS.writeSERIAL(false, Serial1);
 
-    delay(50);
+    // delay(100);
 
     #ifdef DEBUG
+        Serial.println("Debug data:");
         OPS.writeSERIAL(false, Serial);
     #endif
 }
