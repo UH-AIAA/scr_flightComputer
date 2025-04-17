@@ -82,7 +82,7 @@ void setup() {
     BMP.setOutputDataRate(BMP3_ODR_200_HZ);
 
     // Configure ADXL
-    ADXL.setDataRate(ADXL343_DATARATE_200_HZ);
+    // ADXL.setDataRate(ADXL343_DATARATE_200_HZ);
 
     // Configure BNO055
     BNO.setMode(OPERATION_MODE_CONFIG);
@@ -125,10 +125,9 @@ void loop() {
     OPS.read_LSM(LSM);
     OPS.read_GPS(GPS);
     
-    OPS.writeSD(false, data);
-    OPS.writeSERIAL(false, Serial1);
+    // OPS.writeSD(false, data);
 
-    // delay(100);
+    delay(100);
 
     #ifdef DEBUG
         Serial.println("Debug data:");
