@@ -52,7 +52,8 @@ const String data_header =
     "bno_accel_x,bno_accel_y,bno_accel_z,"
     "adxl_accel_x,adxl_accel_y,adxl_accel_z,"
     "pressure,altitude,"
-    "lsm_temp,adxl_temp,bno_temp,bmp_temp";
+    "lsm_temp,adxl_temp,bno_temp,bmp_temp,"
+    "lsm_status,bmp_status,adxl_status,bno_status,gps_status";
 
 FLIGHT OPS = FLIGHT(accel_liftoff_threshold, accel_liftoff_time_threshold, land_time_threshold, land_altitude_threshold, data_header, GPS, currentData);
 
