@@ -84,11 +84,11 @@ void setup() {
     LSM.setGyroDataRate(LSM6DS_RATE_416_HZ);
 
     // Configure BMP390
-    while(!LSM.begin_SPI(LSM_CS, &SPI)) {
-        Serial.println(F("LSM6DSO32 not found..."));  // Print error message if sensor not found
+    while(!BMP.begin_SPI(BMP_CS, &SPI)) {
+        Serial.println(F("BMP390 not found..."));  // Print error message if sensor not found
         delay(1000);  // Wait for 1 second before retrying
     }
-    Serial.println(F("LSM6DSO32 initialized")); 
+    Serial.println(F("BMP390 initialized")); 
     BMP.setTemperatureOversampling(BMP3_OVERSAMPLING_16X);
     BMP.setPressureOversampling(BMP3_OVERSAMPLING_16X);
     BMP.setIIRFilterCoeff(BMP3_IIR_FILTER_COEFF_3);
