@@ -115,7 +115,7 @@ void setup() {
     BNO.setMode(OPERATION_MODE_NDOF);
 
     // GPS Initialization and Configuration
-    GPS.begin(115200);
+    GPS.begin(9600);
     GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_ALLDATA);
     GPS.sendCommand(PMTK_SET_NMEA_UPDATE_10HZ);
 
