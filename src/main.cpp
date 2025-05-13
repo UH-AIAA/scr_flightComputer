@@ -22,9 +22,6 @@
 // Computing imports
 #include <SRAD_PHX.h>
 
-// Debug (comment out to turn off debug output)
-#define DEBUG
-
 // config thresholds
 #define accel_liftoff_threshold                    30  // METERS PER SECOND^2
 #define accel_liftoff_time_threshold              250  // MILLISECONDS
@@ -55,7 +52,8 @@ const String data_header =
     "bno_accel_x,bno_accel_y,bno_accel_z,"
     "adxl_accel_x,adxl_accel_y,adxl_accel_z,"
     "pressure,altitude,"
-    "lsm_temp,adxl_temp,bno_temp,bmp_temp";
+    "lsm_temp,adxl_temp,bno_temp,bmp_temp,"
+    "lsm_status,bmp_status,adxl_status,bno_status,gps_status";
 
 FLIGHT OPS = FLIGHT(accel_liftoff_threshold, accel_liftoff_time_threshold, land_time_threshold, land_altitude_threshold, data_header, GPS, currentData);
 
@@ -68,23 +66,50 @@ void setup() {
     Serial.begin(115200);
     Serial1.begin(9600); // Radio Serial Port
     Serial2.begin(9600); // GPS Serial Port (Default hardware at 9600)
+    SPI.begin();
+    #ifdef DEBUG
+        delay(10000);
+        Serial.print(CrashReport);
+    #endif
 
     // Configure LSM6DSO32
+    while(!LSM.begin_SPI(LSM_CS, &SPI)) {
+        Serial.println(F("LSM6DSO32 not found..."));  // Print error message if sensor not found
+        delay(1000);  // Wait for 1 second before retrying
+    }
+    Serial.println(F("LSM6DSO32 initialized")); 
     LSM.setAccelRange(LSM6DSO32_ACCEL_RANGE_32_G);
     LSM.setGyroRange(LSM6DS_GYRO_RANGE_1000_DPS);
     LSM.setAccelDataRate(LSM6DS_RATE_416_HZ);
     LSM.setGyroDataRate(LSM6DS_RATE_416_HZ);
 
     // Configure BMP390
+    while(!BMP.begin_SPI(BMP_CS, &SPI)) {
+        Serial.println(F("BMP390 not found..."));  // Print error message if sensor not found
+        delay(1000);  // Wait for 1 second before retrying
+    }
+    Serial.println(F("BMP390 initialized")); 
     BMP.setTemperatureOversampling(BMP3_OVERSAMPLING_16X);
     BMP.setPressureOversampling(BMP3_OVERSAMPLING_16X);
     BMP.setIIRFilterCoeff(BMP3_IIR_FILTER_COEFF_3);
     BMP.setOutputDataRate(BMP3_ODR_200_HZ);
 
     // Configure ADXL
+    while(!ADXL.begin()) {
+        Serial.println(F("ADXL375 not found..."));  // Print error message if sensor not found
+        delay(1000);  // Wait for 1 second before retrying
+    }
+    Serial.println(F("ADXL375 initialized"));
+
     ADXL.setDataRate(ADXL343_DATARATE_200_HZ);
 
     // Configure BNO055
+    while(!BNO.begin()) {
+        Serial.println(F("BNO055 not found..."));  // Print error message if sensor not found
+        delay(1000);  // Wait for 1 second before retrying
+    }
+    Serial.println(F("BNO055 initialized"));
+
     BNO.setMode(OPERATION_MODE_CONFIG);
     BNO.setAxisRemap(Adafruit_BNO055::REMAP_CONFIG_P1);
     BNO.setMode(OPERATION_MODE_NDOF);
@@ -94,7 +119,14 @@ void setup() {
     GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_ALLDATA);
     GPS.sendCommand(PMTK_SET_NMEA_UPDATE_10HZ);
 
+
     // init SD card
+    while(!SD.begin(BUILTIN_SDCARD)) {
+        Serial.println(F("SD not found..."));  // Print error message if SD card not found
+        delay(1000);  // Wait for 1 second before retrying
+    }
+    
+    Serial.println(F("SD initialized"));
     SD.begin(BUILTIN_SDCARD);
 
     // Create data logging file
@@ -128,7 +160,7 @@ void loop() {
     OPS.writeSD(false, data);
     OPS.writeSERIAL(false, Serial1);
 
-    // delay(100);
+    delay(100);
 
     #ifdef DEBUG
         Serial.println("Debug data:");
