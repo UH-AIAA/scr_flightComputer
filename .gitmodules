@@ -1,0 +1,27 @@
+[submodule "lib/SRAD_PHX"]
+	path = lib/SRAD_PHX
+	url = git@github.com:UH-AIAA/SRAD_PHX.git
+[submodule "lib/Adafruit_Sensor"]
+	path = lib/Adafruit_Sensor
+	url = https://github.com/adafruit/Adafruit_Sensor.git
+[submodule "lib/Adafruit_GPS"]
+	path = lib/Adafruit_GPS
+	url = https://github.com/adafruit/Adafruit_GPS.git
+[submodule "lib/Adafruit_ADXL375"]
+	path = lib/Adafruit_ADXL375
+	url = https://github.com/adafruit/Adafruit_ADXL375.git
+[submodule "lib/Adafruit_ADXL343"]
+	path = lib/Adafruit_ADXL343
+	url = https://github.com/adafruit/Adafruit_ADXL343.git
+[submodule "lib/Adafruit_BMP3XX"]
+	path = lib/Adafruit_BMP3XX
+	url = https://github.com/adafruit/Adafruit_BMP3XX.git
+[submodule "lib/Adafruit_BusIO"]
+	path = lib/Adafruit_BusIO
+	url = https://github.com/adafruit/Adafruit_BusIO.git
+[submodule "lib/Adafruit_LSM6DS"]
+	path = lib/Adafruit_LSM6DS
+	url = https://github.com/adafruit/Adafruit_LSM6DS.git
+[submodule "lib/Adafruit_BNO055"]
+	path = lib/Adafruit_BNO055
+	url = https://github.com/adafruit/Adafruit_BNO055.git
