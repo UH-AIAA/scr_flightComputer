@@ -1,6 +1,6 @@
 [submodule "lib/SRAD_PHX"]
 	path = lib/SRAD_PHX
-	url = git@github.com:UH-AIAA/SRAD_PHX.git
+	url = https://github.com/UH-AIAA/SRAD_PHX.git
 [submodule "lib/Adafruit_Sensor"]
 	path = lib/Adafruit_Sensor
 	url = https://github.com/adafruit/Adafruit_Sensor.git
