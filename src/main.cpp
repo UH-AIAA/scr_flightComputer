@@ -83,12 +83,12 @@ void setup() {
     LSM.setAccelDataRate(LSM6DS_RATE_416_HZ);
     LSM.setGyroDataRate(LSM6DS_RATE_416_HZ);
 
-    // Configure BMP390
+    // Configure BMP388. (Fixed naming)
     while(!BMP.begin_SPI(BMP_CS, &SPI)) {
-        Serial.println(F("BMP390 not found..."));  // Print error message if sensor not found
+        Serial.println(F("BMP388 not found..."));  // Print error message if sensor not found
         delay(1000);  // Wait for 1 second before retrying
     }
-    Serial.println(F("BMP390 initialized")); 
+    Serial.println(F("BMP388 initialized")); 
     BMP.setTemperatureOversampling(BMP3_OVERSAMPLING_16X);
     BMP.setPressureOversampling(BMP3_OVERSAMPLING_16X);
     BMP.setIIRFilterCoeff(BMP3_IIR_FILTER_COEFF_3);
@@ -150,12 +150,12 @@ void setup() {
 
 void loop() {
     OPS.incrementTime();
-    
     OPS.read_BMP(BMP);
     OPS.read_ADXL(ADXL);
     OPS.read_BNO(BNO);
     OPS.read_LSM(LSM);
     OPS.read_GPS(GPS);
+    
     
     OPS.writeSD(false, data);
     OPS.writeSERIAL(false, Serial1);
