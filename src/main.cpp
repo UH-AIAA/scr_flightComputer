@@ -150,12 +150,12 @@ void setup() {
 
 void loop() {
     OPS.incrementTime();
-    
     OPS.read_BMP(BMP);
     OPS.read_ADXL(ADXL);
     OPS.read_BNO(BNO);
     OPS.read_LSM(LSM);
     OPS.read_GPS(GPS);
+    
     
     OPS.writeSD(false, data);
     OPS.writeSERIAL(false, Serial1);
