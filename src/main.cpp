@@ -143,8 +143,7 @@ void setup() {
     OPS.writeSERIAL(true, Serial1);
 
     #ifdef DEBUG
-        Serial.println("calling WriteSerial with headers = false");
-        OPS.writeSERIAL(true, Serial);
+        OPS.writeDEBUG(true, Serial);
     #endif
 }
 
@@ -164,6 +163,6 @@ void loop() {
 
     #ifdef DEBUG
         Serial.println("Debug data:");
-        OPS.writeSERIAL(false, Serial);
+        OPS.writeDEBUG(false, Serial);
     #endif
 }
