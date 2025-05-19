@@ -25,3 +25,6 @@
 [submodule "lib/Adafruit_BNO055"]
 	path = lib/Adafruit_BNO055
 	url = https://github.com/adafruit/Adafruit_BNO055.git
+[submodule "lib/SerialTransfer"]
+	path = lib/SerialTransfer
+	url = https://github.com/PowerBroker2/SerialTransfer.git
