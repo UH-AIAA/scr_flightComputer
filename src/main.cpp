@@ -125,7 +125,7 @@ void setup() {
         Serial.println(F("SD not found..."));  // Print error message if SD card not found
         delay(1000);  // Wait for 1 second before retrying
     }
-    
+
     Serial.println(F("SD initialized"));
     SD.begin(BUILTIN_SDCARD);
 
@@ -154,12 +154,10 @@ void loop() {
     OPS.read_BNO(BNO);
     OPS.read_LSM(LSM);
     OPS.read_GPS(GPS);
-    
-    
+    OPS.calculateState();
+
     OPS.writeSD(false, data);
     OPS.writeSERIAL(false, Serial1);
-
-    delay(100);
 
     #ifdef DEBUG
         Serial.println("Debug data:");
