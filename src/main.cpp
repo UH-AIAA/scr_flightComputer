@@ -162,5 +162,7 @@ void loop() {
     #ifdef DEBUG
         Serial.println("Debug data:");
         OPS.writeDEBUG(false, Serial);
+    #else 
+        OPS.printRate(); // function to figure out what our cycle rate is
     #endif
 }
