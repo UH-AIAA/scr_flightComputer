@@ -346,6 +346,6 @@ void FLIGHT::initTransferSerial(Stream &transferSerial) {
 // }
 
 void FLIGHT::printRate() {
-    Serial.println("Cycle Time: " + deltaTime_ms);
+    Serial.print("Cycle Time: "); Serial.println(deltaTime_ms);
     Serial.print("Cycle Rate: "); Serial.println(1000.0/float(deltaTime_ms));
 }
