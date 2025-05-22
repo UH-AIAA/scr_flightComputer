@@ -47,6 +47,7 @@ FlightData currentData;
 const String data_header =
     "time,lat,lon,"
     "satellites,speed,g_angle,gps_alt,"
+    "lsm_gyro_x, lsm_gyro_y, lsm_gyro_z, lsm_acc_x, lsm_acc_y, lsm_acc_z"
     "bno ori w,bno ori x,bno ori y,bno ori z,"
     "bno_rate_x,bno_rate_y,bno_rate_z,"
     "bno_accel_x,bno_accel_y,bno_accel_z,"
@@ -125,7 +126,7 @@ void setup() {
         Serial.println(F("SD not found..."));  // Print error message if SD card not found
         delay(1000);  // Wait for 1 second before retrying
     }
-    
+
     Serial.println(F("SD initialized"));
     SD.begin(BUILTIN_SDCARD);
 
@@ -154,15 +155,15 @@ void loop() {
     OPS.read_BNO(BNO);
     OPS.read_LSM(LSM);
     OPS.read_GPS(GPS);
-    
-    
+    OPS.calculateState();
+
     OPS.writeSD(false, data);
     OPS.writeSERIAL(false, Serial1);
-
-    delay(100);
 
     #ifdef DEBUG
         Serial.println("Debug data:");
         OPS.writeDEBUG(false, Serial);
+    #else 
+        OPS.printRate(); // function to figure out what our cycle rate is
     #endif
 }
