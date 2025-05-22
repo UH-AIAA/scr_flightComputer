@@ -147,6 +147,7 @@ void FLIGHT::writeDEBUG(bool headers, Stream &outputSerial) {
     }
 
     outputSerial.print("Uptime (ms): ");outputSerial.print(output.totalTime_ms); outputSerial.print(", \n");
+    outputSerial.print("State: "); outputSerial.println(STATE); outputSerial.println("\n");
     if(last_gps.fix) {
         outputSerial.print("GPS Latitude Degrees: ");outputSerial.print(last_gps.latitudeDegrees, 6); outputSerial.println(", ");
         outputSerial.print("GPS Longitude Degrees: ");outputSerial.print(last_gps.longitudeDegrees, 6); outputSerial.println(",");

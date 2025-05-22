@@ -92,7 +92,7 @@ class FLIGHT {
         void initTransferSerial(Stream &);
         // FlightData decodeTransmission(TransmitFlightData);
         // TransmitFlightData prepareToTransmit(FlightData);
-        bool AltitudeCalibrate();
+        void AltitudeCalibrate();
         void printRate();
 
     private:
