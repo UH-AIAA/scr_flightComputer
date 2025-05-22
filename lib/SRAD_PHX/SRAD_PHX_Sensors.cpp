@@ -66,10 +66,11 @@ uint8_t FLIGHT::read_BMP(Adafruit_BMP3XX &BMP) {
                                                                     // depends on the data of the day. 
                                                                     //But 1013.25 is an acceptable value.
     }
-    altReadings[altReadings_ind] = output.bmp_alt;
+    
     if(++altReadings_ind == 10) {
         altReadings_ind = 0;
     }
+    altReadings[altReadings_ind] = output.bmp_alt;
 
     output.sensorStatus.reset(1);
     return 0;

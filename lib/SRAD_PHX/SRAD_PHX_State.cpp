@@ -89,21 +89,23 @@ bool FLIGHT::isAscent() {
     }
     return false;
 }
+
+// FIXME: This code CRASHES the computer at present
 bool FLIGHT::isDescent() {
-    // use altimeter primarily to detect apogee based off of trend in data
-    if(!output.sensorStatus.test(1)) {
-        uint8_t desc_samples;                                   // tracks the number of samples with a descending delta
-        for(int i = 0; i < 9; i++) {
-            uint8_t index1 = (altReadings_ind + i + 1) % 10;        // get an index, starting with our oldest value
-            uint8_t index2 = (altReadings_ind + i + 2) % 10;        // get the value after the first index
-            if(altReadings[index1] - altReadings[index2] > 0.5 ) {  // change 0.5 based on noise values from lab testing
-                desc_samples++;
-            }
-        }
-        if(desc_samples > 7) {
-            return true;
-        }
-    } // add backup sensor here
+    // // use altimeter primarily to detect apogee based off of trend in data
+    // if(!output.sensorStatus.test(1)) {
+    //     uint8_t desc_samples = 0;                                   // tracks the number of samples with a descending delta
+    //     for(int i = 0; i < 9; i++) {
+    //         uint8_t index1 = (altReadings_ind + i + 1) % 10;        // get an index, starting with our oldest value
+    //         uint8_t index2 = (altReadings_ind + i + 2) % 10;        // get the value after the first index
+    //         if(altReadings[index1] - altReadings[index2] > 0.5 ) {  // change 0.5 based on noise values from lab testing
+    //             desc_samples++;
+    //         }
+    //     }
+    //     if(desc_samples > 7) {
+    //         return true;
+    //     }
+    // } // add backup sensor here
     return false;
 
 }

@@ -96,9 +96,9 @@ void FLIGHT::writeSERIAL(bool headers, Stream& outputSerial) {
         return;
     }
 
-    outputSerial.print(output.totalTime_ms); outputSerial.print(", ");
+    outputSerial.print(output.totalTime_ms); outputSerial.print(",");
     if(last_gps.fix) {
-        outputSerial.print(last_gps.latitudeDegrees, 6); outputSerial.print(", ");
+        outputSerial.print(last_gps.latitudeDegrees, 6); outputSerial.print(",");
         outputSerial.print(last_gps.longitudeDegrees, 6); outputSerial.print(",");
         outputSerial.print((int32_t)last_gps.satellites); outputSerial.print(",");
         outputSerial.print(last_gps.speed, 3); outputSerial.print(",");
@@ -107,6 +107,9 @@ void FLIGHT::writeSERIAL(bool headers, Stream& outputSerial) {
     } else {
         outputSerial.print("-1,No fix,-1,No fix,0,-1,-1,-1,");
     }
+    outputSerial.print(output.lsm_gyro.x, 5); outputSerial.print(",");
+    outputSerial.print(output.lsm_gyro.y, 5); outputSerial.print(",");
+    outputSerial.print(output.lsm_gyro.z, 5); outputSerial.print(",");
     outputSerial.print(output.bno_orientation.w, 5); outputSerial.print(",");
     outputSerial.print(output.bno_orientation.x, 5); outputSerial.print(",");
     outputSerial.print(output.bno_orientation.y, 5); outputSerial.print(",");
@@ -154,6 +157,15 @@ void FLIGHT::writeDEBUG(bool headers, Stream &outputSerial) {
     } else {
         outputSerial.println("-1,No fix,-1,No fix,0,-1,-1,-1,\n");
     }
+    // LSM data
+    outputSerial.print("LSM Gyro X: "); outputSerial.print(output.lsm_gyro.x, 5); outputSerial.print(",");
+    outputSerial.print("LSM Gyro Y: "); outputSerial.print(output.lsm_gyro.y, 5); outputSerial.print(",");
+    outputSerial.print("LSM Gyro Z: "); outputSerial.print(output.lsm_gyro.z, 5); outputSerial.println(",");
+
+    outputSerial.print("LSM Acc X: "); outputSerial.print(output.lsm_acc.x, 5); outputSerial.print(",");
+    outputSerial.print("LSM Acc Y: "); outputSerial.print(output.lsm_acc.y, 5); outputSerial.print(",");
+    outputSerial.print("LSM Acc Z: "); outputSerial.print(output.lsm_acc.z, 5); outputSerial.println(",");
+
     //BNO data
         //orientation
     outputSerial.print("BNO W-Orientation: ");outputSerial.print(output.bno_orientation.w, 5); outputSerial.print(",");
