@@ -51,7 +51,7 @@ enum STATES {
 
 class FLIGHT {
     public:
-        // initial constructor
+        // three stack initial constructor
         FLIGHT(int a1, int a2, int l1, int l2, String h, Adafruit_GPS& g, FlightData& o) 
         : accel_liftoff_threshold(a1), accel_liftoff_time_threshold(a2), 
         land_time_threshold(l1), land_altitude_threshold(l2), data_header(h), last_gps(g), output(o) {
@@ -64,6 +64,29 @@ class FLIGHT {
                 altReadings[i] = 0;
             }
         }
+
+        // UART Constructor
+        FLIGHT(String h, Adafruit_GPS& g, FlightData& o) 
+        : data_header(h), last_gps(g), output(o) {
+            STATE = STATES::PRE_NO_CAL;
+            runningTime_ms = 0;
+        }
+
+        // SPI Constructor
+        FLIGHT(int a1, int a2, int l1, int l2, String h, FlightData& o) 
+        : accel_liftoff_threshold(a1), accel_liftoff_time_threshold(a2), 
+        land_time_threshold(l1), land_altitude_threshold(l2), data_header(h), output(o) {
+            STATE = STATES::PRE_NO_CAL;
+            runningTime_ms = 0;
+
+            // initialize arrays!
+            altReadings_ind = 0;
+            for(int i = 0; i < 10; i++) {
+                altReadings[i] = 0;
+            }
+        }
+
+
         // constructor to automatically cast integer outputs from helpfer functions
         // FLIGHT(int stateVal) :  STATE(static_cast<STATES>(stateVal)) {}
 
