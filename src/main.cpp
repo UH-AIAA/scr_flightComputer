@@ -29,7 +29,6 @@
 
     // Logging
     File data;
-    SerialTransfer myTransfer;
 
     const String data_header =
     "time,lat,lon,"
@@ -69,8 +68,7 @@
     Adafruit_BNO055 BNO(55, 0x28, &Wire);
 
     // Logging
-    File data;
-    SerialTransfer myTransfer;
+    // File data;
 
     const String data_header =
     "time,lat,lon,"
@@ -88,7 +86,7 @@
     FLIGHT OPS = FLIGHT(accel_liftoff_threshold, accel_liftoff_time_threshold, land_time_threshold, land_altitude_threshold, data_header, currentData);
 #endif
 
-const int FLAG_PIN = 24;
+#define FLAG_PIN 24
 
 
 void setup() {
@@ -100,25 +98,25 @@ void setup() {
         Serial.print(CrashReport);
     #endif
 
-    // init SD card
-    while(!SD.begin(BUILTIN_SDCARD)) {
-        Serial.println(F("SD not found..."));  // Print error message if SD card not found
-        delay(1000);  // Wait for 1 second before retrying
-    }
-    Serial.println(F("SD initialized"));
-    SD.begin(BUILTIN_SDCARD);
+    // // init SD card
+    // while(!SD.begin(BUILTIN_SDCARD)) {
+    //     Serial.println(F("SD not found..."));  // Print error message if SD card not found
+    //     delay(1000);  // Wait for 1 second before retrying
+    // }
+    // Serial.println(F("SD initialized"));
+    // SD.begin(BUILTIN_SDCARD);
 
-    // Create data logging file
-    char dataname[17] = "FL0.csv";
-    for (int i = 0; SD.exists(dataname); i++) {
-        sprintf(dataname, "FL%d.csv", i);
-    }
+    // // Create data logging file
+    // char dataname[17] = "FL0.csv";
+    // for (int i = 0; SD.exists(dataname); i++) {
+    //     sprintf(dataname, "FL%d.csv", i);
+    // }
 
-    // Open file for writing
-    data = SD.open(dataname, FILE_WRITE);
+    // // Open file for writing
+    // data = SD.open(dataname, FILE_WRITE);
 
-    // Print data header
-    OPS.writeSD(true, data);
+    // // Print data header
+    // OPS.writeSD(true, data);
 
     #ifdef DEBUG
         OPS.writeDEBUG(true, Serial);
@@ -129,7 +127,7 @@ void setup() {
         Serial1.begin(9600); // Radio Serial Port
         Serial2.begin(9600); // GPS Serial Port (Default hardware at 9600)
         Serial8.begin(9600);
-        myTransfer.begin(Serial8);
+        OPS.initTransferSerial(Serial8);
         pinMode(FLAG_PIN, OUTPUT);
         // GPS Initialization and Configuration
         GPS.begin(9600);
@@ -142,7 +140,7 @@ void setup() {
     // SETUP (SPI) 
     #ifdef SPI_TEENSY
         Serial4.begin(9600);
-        myTransfer.begin(Serial4);
+        OPS.initTransferSerial(Serial4);
         pinMode(FLAG_PIN, INPUT);
         SPI.begin();
         // Configure LSM6DSO32
@@ -190,8 +188,8 @@ void setup() {
 }
 
 void loop() {
-    OPS.incrementTime();
     #ifdef SPI_TEENSY 
+        OPS.incrementTime();
         OPS.read_BMP(BMP);
         OPS.read_ADXL(ADXL);
         OPS.read_BNO(BNO);
@@ -202,25 +200,38 @@ void loop() {
                 Serial.println("Transmitting...");
             #endif
             
-            OPS.writeDataToTeensy(Serial4);
+            OPS.writeDataToTeensy();
         }
 
         #ifdef DEBUG
             Serial.println("Debug data:");
-            OPS.writeDEBUG(false, Serial);
+            // OPS.writeDEBUG(false, Serial);
         #else 
             OPS.printRate(); // function to figure out what our cycle rate is
         #endif
     #endif
 
-    
-    
-
-    OPS.writeSD(false, data);
-
-    // TODO: Add to UART Teensy code
-    // OPS.read_GPS(GPS);
-    // OPS.writeSERIAL(false, Serial1);
-
-    
+    #ifdef UART_TEENSY
+        OPS.read_GPS(GPS);
+        #ifdef DEBUG
+            Serial.println("Writing pin high...");
+        #endif
+        digitalWrite(FLAG_PIN, HIGH);
+        // delay(25);
+        #ifdef DEBUG
+            Serial.println("Reading from spi teensy...");
+        #endif
+        OPS.readDataFromTeensy();
+        // delay(75);
+        #ifdef DEBUG
+            Serial.println("Writing pin low...");
+        #endif
+        digitalWrite(FLAG_PIN, LOW);
+        OPS.incrementTime();
+        OPS.writeSD(false, data);
+        OPS.writeSERIAL(false, Serial1);
+        #ifdef DEBUG
+            OPS.writeDEBUG(false, Serial);
+        #endif
+    #endif
 }

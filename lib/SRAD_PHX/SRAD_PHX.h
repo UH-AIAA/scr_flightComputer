@@ -25,7 +25,7 @@ struct FlightData {
     float bmp_temp, bmp_press, bmp_alt;             // Barometer Pressure/Altitude (BMP388 Chip)
 
     std::bitset<5> sensorStatus;
-    uint64_t totalTime_ms;
+    uint32_t totalTime_ms;
 };
 
 // struct __attribute__((packed)) TransmitFlightData {
@@ -36,7 +36,7 @@ struct FlightData {
 //     Quaternion bno_orientation;                     // Orientation (also BNO055)
 //     float lsm_temp, adxl_temp, bno_temp;            // Temperature (all chips that record)
 //     float bmp_temp, bmp_press, bmp_alt;             // Barometer Pressure/Altitude (BMP388 Chip)
-  
+
 //     std::bitset<5> sensorStatus;
 //     uint64_t totalTime_ms;
 // };
@@ -100,8 +100,8 @@ class FLIGHT {
         void incrementTime();
         void writeSD(bool, File &);
         void writeSERIAL(bool, Stream &);  // Strema allows Teensy USB as well
-        void writeDataToTeensy(Stream &);
-        void readDataFromTeensy(Stream &);
+        void writeDataToTeensy();
+        void readDataFromTeensy();
         void writeDEBUG(bool, Stream &);
 
 
