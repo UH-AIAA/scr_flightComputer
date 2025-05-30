@@ -14,6 +14,7 @@
 
 #include <SerialTransfer.h>
 #include <Quaternion.h>
+#include <EasyTransfer.h>
 
 struct FlightData {
     // data collected by sensors

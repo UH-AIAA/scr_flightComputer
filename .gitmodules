@@ -25,3 +25,6 @@
 [submodule "lib/SerialTransfer"]
 	path = lib/SerialTransfer
 	url = https://github.com/PowerBroker2/SerialTransfer.git
+[submodule "lib/Arduino-EasyTransfer"]
+	path = lib/Arduino-EasyTransfer
+	url = https://github.com/madsci1016/Arduino-EasyTransfer.git
