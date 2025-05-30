@@ -209,7 +209,7 @@ void FLIGHT::writeDEBUG(bool headers, Stream &outputSerial) {
     return;
 }
 
-void FLIGHT::writeDataToTeensy(Stream &outputSerial) {
+void FLIGHT::writeDataToTeensy() {
     // TransmitFlightData transfer = prepareToTransmit(output);
     
     // initialize transmission size
@@ -237,8 +237,8 @@ void FLIGHT::writeDataToTeensy(Stream &outputSerial) {
     trSz = myTransfer.txObj(output.bno_acc.z, trSz);
 
     trSz = myTransfer.txObj(output.bno_mag.x, trSz);
-    trSz = myTransfer.txObj(output.bno_mag.x, trSz);
-    trSz = myTransfer.txObj(output.bno_mag.x, trSz);
+    trSz = myTransfer.txObj(output.bno_mag.y, trSz);
+    trSz = myTransfer.txObj(output.bno_mag.z, trSz);
 
     trSz = myTransfer.txObj(output.bno_orientation.w, trSz);
     trSz = myTransfer.txObj(output.bno_orientation.x, trSz);
@@ -267,11 +267,36 @@ void FLIGHT::writeDataToTeensy(Stream &outputSerial) {
     // trSz = myTransfer.txObj(output.totalTime_ms, trSz);
     
     myTransfer.sendData(trSz);
+
+    Serial.print("Send status: ");
+    if(myTransfer.status == 0) {
+        Serial.println("SUCCESS");
+    } else {
+        Serial.print("ERROR - code: ");
+        Serial.println(myTransfer.status);
+        
+        // Print human-readable error
+        switch(myTransfer.status) {
+            case 1:
+                Serial.println("CRC_ERROR");
+                break;
+            case 2:
+                Serial.println("PAYLOAD_ERROR");
+                break;
+            case 3:
+                Serial.println("STOP_BYTE_ERROR");
+                break;
+            default:
+                Serial.println("UNKNOWN_ERROR");
+                break;
+        }
+    }
 }
 
-void FLIGHT::readDataFromTeensy(Stream &inputSerial) {
+void FLIGHT::readDataFromTeensy() {
     // TransmitFlightData receiveStruct;
     if(myTransfer.available()) {
+        Serial.println("Data Available!");
         // initialize transmission size
         uint_fast16_t trSz = 0;
 
@@ -297,8 +322,8 @@ void FLIGHT::readDataFromTeensy(Stream &inputSerial) {
         trSz = myTransfer.rxObj(output.bno_acc.z, trSz);
 
         trSz = myTransfer.rxObj(output.bno_mag.x, trSz);
-        trSz = myTransfer.rxObj(output.bno_mag.x, trSz);
-        trSz = myTransfer.rxObj(output.bno_mag.x, trSz);
+        trSz = myTransfer.rxObj(output.bno_mag.y, trSz);
+        trSz = myTransfer.rxObj(output.bno_mag.z, trSz);
 
         trSz = myTransfer.rxObj(output.bno_orientation.w, trSz);
         trSz = myTransfer.rxObj(output.bno_orientation.x, trSz);
@@ -312,20 +337,46 @@ void FLIGHT::readDataFromTeensy(Stream &inputSerial) {
         trSz = myTransfer.rxObj(output.bmp_press, trSz);
         trSz = myTransfer.rxObj(output.bmp_alt, trSz);
 
-        uint_fast8_t sensor1 = output.sensorStatus[0];
-        uint_fast8_t sensor2 = output.sensorStatus[1];
-        uint_fast8_t sensor3 = output.sensorStatus[2];
-        uint_fast8_t sensor4 = output.sensorStatus[3];
-        // uint_fast8_t sensor5 = output.sensorStatus[4];
+        uint_fast8_t sensor1, sensor2, sensor3, sensor4;
 
         trSz = myTransfer.rxObj(sensor1, trSz);
         trSz = myTransfer.rxObj(sensor2, trSz);
         trSz = myTransfer.rxObj(sensor3, trSz);
         trSz = myTransfer.rxObj(sensor4, trSz);
+        
+        output.sensorStatus[0] = sensor1;
+        output.sensorStatus[1] = sensor2;
+        output.sensorStatus[2] = sensor3;
+        output.sensorStatus[3] = sensor4;
+
         // trSz = myTransfer.rxObj(sensor5, trSz);
-
+        Serial.print("Receive status: ");
+        if(myTransfer.status == 0) {
+            Serial.println("SUCCESS");
+        } else {
+            Serial.print("ERROR - code: ");
+            Serial.println(myTransfer.status);
+            
+            // Print human-readable error
+            switch(myTransfer.status) {
+                case 1:
+                    Serial.println("CRC_ERROR");
+                    break;
+                case 2:
+                    Serial.println("PAYLOAD_ERROR");
+                    break;
+                case 3:
+                    Serial.println("STOP_BYTE_ERROR");
+                    break;
+                default:
+                    Serial.println("UNKNOWN_ERROR");
+                    break;
+            }
+        }
         // trSz = myTransfer.rxObj(output.totalTime_ms, trSz);
-
+        // myTransfer.reset();
+    } else {
+        Serial.println("no packet available!");
     }
     // output = decodeTransmission(receiveStruct);
 }
