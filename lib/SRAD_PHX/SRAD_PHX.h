@@ -12,7 +12,8 @@
 #include <Adafruit_BMP3XX.h>
 #include <Adafruit_LSM6DSO32.h>
 
-#include <SerialTransfer.h>
+//#include <SerialTransfer.h>
+#include <EasyTransfer.h> //using EasyTransfer lib instead
 #include <Quaternion.h>
 
 struct FlightData {
@@ -26,6 +27,20 @@ struct FlightData {
 
     std::bitset<5> sensorStatus;
     uint64_t totalTime_ms;
+};
+
+struct TelemetryData { // Easy transfer can only work with basic data types 
+                      //(int, float, etc.. but not vector3 stuff due to unpredictability)
+    float lsm_gyro_x, lsm_gyro_y, lsm_gyro_z;
+    float lsm_acc_x, lsm_acc_y, lsm_acc_z;
+    float adxl_acc_x, adxl_acc_y, adxl_acc_z;
+    float bno_gyro_x, bno_gyro_y, bno_gyro_z;
+    float bno_acc_x, bno_acc_y, bno_acc_z;
+    float bno_mag_x, bno_mag_y, bno_mag_z;
+    float bno_ori_w, bno_ori_x, bno_ori_y, bno_ori_z;
+    float lsm_temp, adxl_temp, bno_temp, bmp_temp;
+    float bmp_press, bmp_alt;
+    uint8_t sensor_status[4];  // bitset not supported by EasyTransfer
 };
 
 // struct __attribute__((packed)) TransmitFlightData {
@@ -76,9 +91,9 @@ class FLIGHT {
         uint8_t read_GPS(Adafruit_GPS &);
         void incrementTime();
         void writeSD(bool, File &);
-        void writeSERIAL(bool, Stream &);  // Strema allows Teensy USB as well
-        void writeDataToTeensy(Stream &);
-        void readDataFromTeensy(Stream &);
+        void writeSERIAL(bool, Stream &);  // Stream allows Teensy USB as well
+        void writeDataToTeensy(); //no stream parameter needed for EasyTransfer
+        void readDataFromTeensy(); //no stream parameter needed for EasyTransfer
         void writeDEBUG(bool, Stream &);
 
 
@@ -119,7 +134,11 @@ class FLIGHT {
 
         bool calibrated = false;
         STATES STATE;
-        SerialTransfer myTransfer;
+        //SerialTransfer myTransfer;
+
+        EasyTransfer ET;
+        TelemetryData txData;
+        TelemetryData rxData;   
 };
 
 #endif

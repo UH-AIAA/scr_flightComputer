@@ -75,13 +75,14 @@ bool FLIGHT::isAscent() {
             liftoffTimer_ms = 0;
         }
     } else if (output.adxl_acc.z > accel_liftoff_threshold) {  // if primary accel is known to be bad, check secondary
-        if(output.lsm_acc.z > accel_liftoff_threshold) {
+        //if(output.lsm_acc.z > accel_liftoff_threshold) { // Fixed fall back to adxl not lsm
             liftoffTimer_ms += deltaTime_ms;
 
             if(liftoffTimer_ms  > accel_liftoff_time_threshold) {
                 return true;
             }
-        } else {
+        //} 
+        else {
             liftoffTimer_ms = 0;
         }
     } else {  // if both accelerometers are bad, use altimeter

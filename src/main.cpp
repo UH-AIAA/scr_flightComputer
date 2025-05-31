@@ -14,6 +14,8 @@
 #include <Wire.h>
 #include <SPI.h>
 #include <SD.h>
+#include <EasyTransfer.h>
+EasyTransfer ET;
 
 // Chip Imports
 #include <Adafruit_Sensor.h>
@@ -47,7 +49,7 @@ FlightData currentData;
 const String data_header =
     "time,lat,lon,"
     "satellites,speed,g_angle,gps_alt,"
-    "lsm_gyro_x, lsm_gyro_y, lsm_gyro_z, lsm_acc_x, lsm_acc_y, lsm_acc_z"
+    "lsm_gyro_x, lsm_gyro_y, lsm_gyro_z, lsm_acc_x, lsm_acc_y, lsm_acc_z, "
     "bno ori w,bno ori x,bno ori y,bno ori z,"
     "bno_rate_x,bno_rate_y,bno_rate_z,"
     "bno_accel_x,bno_accel_y,bno_accel_z,"
@@ -66,6 +68,7 @@ void setup() {
     // USB Serial Port
     Serial.begin(115200);
     Serial1.begin(9600); // Radio Serial Port
+    OPS.initTransferSerial(Serial1); //init EasyTransfer
     Serial2.begin(9600); // GPS Serial Port (Default hardware at 9600)
     SPI.begin();
     #ifdef DEBUG
@@ -128,7 +131,8 @@ void setup() {
     }
 
     Serial.println(F("SD initialized"));
-    SD.begin(BUILTIN_SDCARD);
+    //SD.begin(BUILTIN_SDCARD); // Fixed Duplicated SD card initialization.
+                                //No need to init again.
 
     // Create data logging file
     char dataname[17] = "FL0.csv";
