@@ -14,6 +14,8 @@
 #include <Wire.h>
 #include <SPI.h>
 #include <SD.h>
+#include <EasyTransfer.h>
+EasyTransfer ET;
 
 // Chip Imports
 #include <Adafruit_Sensor.h>
@@ -33,7 +35,7 @@
     const String data_header =
     "time,lat,lon,"
     "satellites,speed,g_angle,gps_alt,"
-    "lsm_gyro_x, lsm_gyro_y, lsm_gyro_z, lsm_acc_x, lsm_acc_y, lsm_acc_z"
+    "lsm_gyro_x, lsm_gyro_y, lsm_gyro_z, lsm_acc_x, lsm_acc_y, lsm_acc_z, "
     "bno ori w,bno ori x,bno ori y,bno ori z,"
     "bno_rate_x,bno_rate_y,bno_rate_z,"
     "bno_accel_x,bno_accel_y,bno_accel_z,"
@@ -98,25 +100,25 @@ void setup() {
         Serial.print(CrashReport);
     #endif
 
-    // // init SD card
-    // while(!SD.begin(BUILTIN_SDCARD)) {
-    //     Serial.println(F("SD not found..."));  // Print error message if SD card not found
-    //     delay(1000);  // Wait for 1 second before retrying
-    // }
-    // Serial.println(F("SD initialized"));
-    // SD.begin(BUILTIN_SDCARD);
+    // init SD card
+    while(!SD.begin(BUILTIN_SDCARD)) {
+        Serial.println(F("SD not found..."));  // Print error message if SD card not found
+        delay(1000);  // Wait for 1 second before retrying
+    }
+    Serial.println(F("SD initialized"));
+    SD.begin(BUILTIN_SDCARD);
 
-    // // Create data logging file
-    // char dataname[17] = "FL0.csv";
-    // for (int i = 0; SD.exists(dataname); i++) {
-    //     sprintf(dataname, "FL%d.csv", i);
-    // }
+    // Create data logging file
+    char dataname[17] = "FL0.csv";
+    for (int i = 0; SD.exists(dataname); i++) {
+        sprintf(dataname, "FL%d.csv", i);
+    }
 
-    // // Open file for writing
-    // data = SD.open(dataname, FILE_WRITE);
+    // Open file for writing
+    data = SD.open(dataname, FILE_WRITE);
 
-    // // Print data header
-    // OPS.writeSD(true, data);
+    // Print data header
+    OPS.writeSD(true, data);
 
     #ifdef DEBUG
         OPS.writeDEBUG(true, Serial);

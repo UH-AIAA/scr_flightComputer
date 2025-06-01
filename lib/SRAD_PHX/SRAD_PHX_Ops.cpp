@@ -210,179 +210,97 @@ void FLIGHT::writeDEBUG(bool headers, Stream &outputSerial) {
 }
 
 void FLIGHT::writeDataToTeensy() {
-    // TransmitFlightData transfer = prepareToTransmit(output);
-    
-    // initialize transmission size
-    uint_fast16_t trSz = 0;
-    
-    // transmit struct field by field;
-    trSz = myTransfer.txObj(output.lsm_gyro.x, trSz);
-    trSz = myTransfer.txObj(output.lsm_gyro.y, trSz);
-    trSz = myTransfer.txObj(output.lsm_gyro.z, trSz);
+    txData.lsm_gyro_x = output.lsm_gyro.x;
+    txData.lsm_gyro_y = output.lsm_gyro.y;
+    txData.lsm_gyro_z = output.lsm_gyro.z;
 
-    trSz = myTransfer.txObj(output.lsm_acc.x, trSz);
-    trSz = myTransfer.txObj(output.lsm_acc.y, trSz);
-    trSz = myTransfer.txObj(output.lsm_acc.z, trSz);
+    txData.lsm_acc_x = output.lsm_acc.x;
+    txData.lsm_acc_y = output.lsm_acc.y;
+    txData.lsm_acc_z = output.lsm_acc.z;
 
-    trSz = myTransfer.txObj(output.adxl_acc.x, trSz);
-    trSz = myTransfer.txObj(output.adxl_acc.y, trSz);
-    trSz = myTransfer.txObj(output.adxl_acc.z, trSz);
+    txData.adxl_acc_x = output.adxl_acc.x;
+    txData.adxl_acc_y = output.adxl_acc.y;
+    txData.adxl_acc_z = output.adxl_acc.z;
 
-    trSz = myTransfer.txObj(output.bno_gyro.x, trSz);
-    trSz = myTransfer.txObj(output.bno_gyro.y, trSz);
-    trSz = myTransfer.txObj(output.bno_gyro.z, trSz);
+    txData.bno_gyro_x = output.bno_gyro.x;
+    txData.bno_gyro_y = output.bno_gyro.y;
+    txData.bno_gyro_z = output.bno_gyro.z;
 
-    trSz = myTransfer.txObj(output.bno_acc.x, trSz);
-    trSz = myTransfer.txObj(output.bno_acc.y, trSz);
-    trSz = myTransfer.txObj(output.bno_acc.z, trSz);
+    txData.bno_acc_x = output.bno_acc.x;
+    txData.bno_acc_y = output.bno_acc.y;
+    txData.bno_acc_z = output.bno_acc.z;
 
-    trSz = myTransfer.txObj(output.bno_mag.x, trSz);
-    trSz = myTransfer.txObj(output.bno_mag.y, trSz);
-    trSz = myTransfer.txObj(output.bno_mag.z, trSz);
+    txData.bno_mag_x = output.bno_mag.x;
+    txData.bno_mag_y = output.bno_mag.y;
+    txData.bno_mag_z = output.bno_mag.z;
 
-    trSz = myTransfer.txObj(output.bno_orientation.w, trSz);
-    trSz = myTransfer.txObj(output.bno_orientation.x, trSz);
-    trSz = myTransfer.txObj(output.bno_orientation.y, trSz);
-    trSz = myTransfer.txObj(output.bno_orientation.z, trSz);
+    txData.bno_ori_w = output.bno_orientation.w;
+    txData.bno_ori_x = output.bno_orientation.x;
+    txData.bno_ori_y = output.bno_orientation.y;
+    txData.bno_ori_z = output.bno_orientation.z;
 
-    trSz = myTransfer.txObj(output.lsm_temp, trSz);
-    trSz = myTransfer.txObj(output.adxl_temp, trSz);
-    trSz = myTransfer.txObj(output.bno_temp, trSz);
-    trSz = myTransfer.txObj(output.bmp_temp, trSz);
-    trSz = myTransfer.txObj(output.bmp_press, trSz);
-    trSz = myTransfer.txObj(output.bmp_alt, trSz);
+    txData.lsm_temp = output.lsm_temp;
+    txData.adxl_temp = output.adxl_temp;
+    txData.bno_temp = output.bno_temp;
+    txData.bmp_temp = output.bmp_temp;
+    txData.bmp_press = output.bmp_press;
+    txData.bmp_alt = output.bmp_alt;
 
-    uint_fast8_t sensor1 = output.sensorStatus[0];
-    uint_fast8_t sensor2 = output.sensorStatus[1];
-    uint_fast8_t sensor3 = output.sensorStatus[2];
-    uint_fast8_t sensor4 = output.sensorStatus[3];
-    // uint_fast8_t sensor5 = output.sensorStatus[4];
-
-    trSz = myTransfer.txObj(sensor1, trSz);
-    trSz = myTransfer.txObj(sensor2, trSz);
-    trSz = myTransfer.txObj(sensor3, trSz);
-    trSz = myTransfer.txObj(sensor4, trSz);
-    // trSz = myTransfer.txObj(sensor5, trSz);
-
-    // trSz = myTransfer.txObj(output.totalTime_ms, trSz);
-    
-    myTransfer.sendData(trSz);
-
-    Serial.print("Send status: ");
-    if(myTransfer.status == 0) {
-        Serial.println("SUCCESS");
-    } else {
-        Serial.print("ERROR - code: ");
-        Serial.println(myTransfer.status);
-        
-        // Print human-readable error
-        switch(myTransfer.status) {
-            case 1:
-                Serial.println("CRC_ERROR");
-                break;
-            case 2:
-                Serial.println("PAYLOAD_ERROR");
-                break;
-            case 3:
-                Serial.println("STOP_BYTE_ERROR");
-                break;
-            default:
-                Serial.println("UNKNOWN_ERROR");
-                break;
-        }
+    for (int i = 0; i < 5; i++) { // Fixed bit sized. Bit was declared 5 in FlightData struct. 
+                                      //4 might cause data missing
+        txData.sensor_status[i] = output.sensorStatus[i];
     }
+
+    ET.sendData();
 }
 
 void FLIGHT::readDataFromTeensy() {
-    // TransmitFlightData receiveStruct;
-    if(myTransfer.available()) {
-        Serial.println("Data Available!");
-        // initialize transmission size
-        uint_fast16_t trSz = 0;
+    if (ET.receiveData()) {
+        output.lsm_gyro.x = rxData.lsm_gyro_x;
+        output.lsm_gyro.y = rxData.lsm_gyro_y;
+        output.lsm_gyro.z = rxData.lsm_gyro_z;
 
-        // transmit struct field by field;
-        trSz = myTransfer.rxObj(output.lsm_gyro.x, trSz);
-        trSz = myTransfer.rxObj(output.lsm_gyro.y, trSz);
-        trSz = myTransfer.rxObj(output.lsm_gyro.z, trSz);
+        output.lsm_acc.x = rxData.lsm_acc_x;
+        output.lsm_acc.y = rxData.lsm_acc_y;
+        output.lsm_acc.z = rxData.lsm_acc_z;
 
-        trSz = myTransfer.rxObj(output.lsm_acc.x, trSz);
-        trSz = myTransfer.rxObj(output.lsm_acc.y, trSz);
-        trSz = myTransfer.rxObj(output.lsm_acc.z, trSz);
+        output.adxl_acc.x = rxData.adxl_acc_x;
+        output.adxl_acc.y = rxData.adxl_acc_y;
+        output.adxl_acc.z = rxData.adxl_acc_z;
 
-        trSz = myTransfer.rxObj(output.adxl_acc.x, trSz);
-        trSz = myTransfer.rxObj(output.adxl_acc.y, trSz);
-        trSz = myTransfer.rxObj(output.adxl_acc.z, trSz);
+        output.bno_gyro.x = rxData.bno_gyro_x;
+        output.bno_gyro.y = rxData.bno_gyro_y;
+        output.bno_gyro.z = rxData.bno_gyro_z;
 
-        trSz = myTransfer.rxObj(output.bno_gyro.x, trSz);
-        trSz = myTransfer.rxObj(output.bno_gyro.y, trSz);
-        trSz = myTransfer.rxObj(output.bno_gyro.z, trSz);
+        output.bno_acc.x = rxData.bno_acc_x;
+        output.bno_acc.y = rxData.bno_acc_y;
+        output.bno_acc.z = rxData.bno_acc_z;
 
-        trSz = myTransfer.rxObj(output.bno_acc.x, trSz);
-        trSz = myTransfer.rxObj(output.bno_acc.y, trSz);
-        trSz = myTransfer.rxObj(output.bno_acc.z, trSz);
+        output.bno_mag.x = rxData.bno_mag_x;
+        output.bno_mag.y = rxData.bno_mag_y;
+        output.bno_mag.z = rxData.bno_mag_z;
 
-        trSz = myTransfer.rxObj(output.bno_mag.x, trSz);
-        trSz = myTransfer.rxObj(output.bno_mag.y, trSz);
-        trSz = myTransfer.rxObj(output.bno_mag.z, trSz);
+        output.bno_orientation.w = rxData.bno_ori_w;
+        output.bno_orientation.x = rxData.bno_ori_x;
+        output.bno_orientation.y = rxData.bno_ori_y;
+        output.bno_orientation.z = rxData.bno_ori_z;
 
-        trSz = myTransfer.rxObj(output.bno_orientation.w, trSz);
-        trSz = myTransfer.rxObj(output.bno_orientation.x, trSz);
-        trSz = myTransfer.rxObj(output.bno_orientation.y, trSz);
-        trSz = myTransfer.rxObj(output.bno_orientation.z, trSz);
+        output.lsm_temp = rxData.lsm_temp;
+        output.adxl_temp = rxData.adxl_temp;
+        output.bno_temp = rxData.bno_temp;
+        output.bmp_temp = rxData.bmp_temp;
+        output.bmp_press = rxData.bmp_press;
+        output.bmp_alt = rxData.bmp_alt;
 
-        trSz = myTransfer.rxObj(output.lsm_temp, trSz);
-        trSz = myTransfer.rxObj(output.adxl_temp, trSz);
-        trSz = myTransfer.rxObj(output.bno_temp, trSz);
-        trSz = myTransfer.rxObj(output.bmp_temp, trSz);
-        trSz = myTransfer.rxObj(output.bmp_press, trSz);
-        trSz = myTransfer.rxObj(output.bmp_alt, trSz);
-
-        uint_fast8_t sensor1, sensor2, sensor3, sensor4;
-
-        trSz = myTransfer.rxObj(sensor1, trSz);
-        trSz = myTransfer.rxObj(sensor2, trSz);
-        trSz = myTransfer.rxObj(sensor3, trSz);
-        trSz = myTransfer.rxObj(sensor4, trSz);
-        
-        output.sensorStatus[0] = sensor1;
-        output.sensorStatus[1] = sensor2;
-        output.sensorStatus[2] = sensor3;
-        output.sensorStatus[3] = sensor4;
-
-        // trSz = myTransfer.rxObj(sensor5, trSz);
-        Serial.print("Receive status: ");
-        if(myTransfer.status == 0) {
-            Serial.println("SUCCESS");
-        } else {
-            Serial.print("ERROR - code: ");
-            Serial.println(myTransfer.status);
-            
-            // Print human-readable error
-            switch(myTransfer.status) {
-                case 1:
-                    Serial.println("CRC_ERROR");
-                    break;
-                case 2:
-                    Serial.println("PAYLOAD_ERROR");
-                    break;
-                case 3:
-                    Serial.println("STOP_BYTE_ERROR");
-                    break;
-                default:
-                    Serial.println("UNKNOWN_ERROR");
-                    break;
-            }
+        for (int i = 0; i < 5; i++) { // Fixed bit sized. Bit was declared 5 in FlightData struct. 
+                                      //4 might cause data missing
+            output.sensorStatus[i] = rxData.sensor_status[i];
         }
-        // trSz = myTransfer.rxObj(output.totalTime_ms, trSz);
-        // myTransfer.reset();
-    } else {
-        Serial.println("no packet available!");
     }
-    // output = decodeTransmission(receiveStruct);
 }
 
 void FLIGHT::initTransferSerial(Stream &transferSerial) {
-    myTransfer.begin(transferSerial);
+    ET.begin(details(txData), &transferSerial);
 }
 
 // FlightData FLIGHT::decodeTransmission(TransmitFlightData s) {
