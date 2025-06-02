@@ -22,24 +22,28 @@ uint8_t FLIGHT::read_LSM(Adafruit_LSM6DSO32 &LSM) {
     // Attempt to read sensor data
     if(!LSM.getEvent(&accel, &gyro, &temp))
     {
-        output.sensorStatus.set(0);
+        // TODO: update to straightup uint8 instead of bitset
+
+        // output.sensorStatus.set(0);
         return 1;  // Return true if read fails
     }
 
     // Store gyroscope data
-    output.lsm_gyro.x = gyro.gyro.x;
-    output.lsm_gyro.y = gyro.gyro.y;
-    output.lsm_gyro.z = gyro.gyro.z;
+    data.lsm_gyro_x = gyro.gyro.x;
+    data.lsm_gyro_y = gyro.gyro.y;
+    data.lsm_gyro_z = gyro.gyro.z;
 
     // Store accelerometer data
-    output.lsm_acc.x = accel.acceleration.x;
-    output.lsm_acc.y = accel.acceleration.y;
-    output.lsm_acc.z = accel.acceleration.z;
+    data.lsm_acc_x = accel.acceleration.x;
+    data.lsm_acc_y = accel.acceleration.y;
+    data.lsm_acc_z = accel.acceleration.z;
 
     // Store temperature data
-    output.lsm_temp = float(temp.temperature);
+    data.lsm_temp = float(temp.temperature);
+    
+    // TODO: also fix to use uint8
 
-    output.sensorStatus.reset(0);
+    // output.sensorStatus.reset(0);
     return 0;  // Return false if read succeeds
 }
 
@@ -51,18 +55,16 @@ uint8_t FLIGHT::read_LSM(Adafruit_LSM6DSO32 &LSM) {
  */
 uint8_t FLIGHT::read_BMP(Adafruit_BMP3XX &BMP) {
     if (!BMP.performReading()) {
-        output.sensorStatus.set(1);
+        // output.sensorStatus.set(1);  // TODO: move to uint8
         return 1;
     }
-    output.bmp_temp = BMP.temperature;
-    output.bmp_press = BMP.pressure;
-
-    output.bmp_alt = BMP.readAltitude(1013.25) - alt_offset;
+    data.bmp_temp = BMP.temperature;
+    data.bmp_press = BMP.pressure;
 
     if(STATE < STATES::FLIGHT_ASCENT) {
-        output.bmp_alt = BMP.readAltitude(1013.25);   //uncalibrated/true altitude
+        data.bmp_alt = BMP.readAltitude(1013.25);   //uncalibrated/true altitude
     } else {
-        output.bmp_alt = BMP.readAltitude(1013.25) - alt_offset;    //sea level can fluctuate under +/- 7 
+        data.bmp_alt = BMP.readAltitude(1013.25) - alt_offset;    //sea level can fluctuate under +/- 7 
                                                                     // depends on the data of the day. 
                                                                     //But 1013.25 is an acceptable value.
     }
@@ -70,9 +72,9 @@ uint8_t FLIGHT::read_BMP(Adafruit_BMP3XX &BMP) {
     if(++altReadings_ind == 10) {
         altReadings_ind = 0;
     }
-    altReadings[altReadings_ind] = output.bmp_alt;
+    altReadings[altReadings_ind] = data.bmp_alt;
 
-    output.sensorStatus.reset(1);
+    // output.sensorStatus.reset(1); // TODO: move to uint8
     return 0;
 }
 
@@ -85,16 +87,16 @@ uint8_t FLIGHT::read_BMP(Adafruit_BMP3XX &BMP) {
 uint8_t FLIGHT::read_ADXL(Adafruit_ADXL375 &ADXL) {
     sensors_event_t event;
     if (!ADXL.getEvent(&event)) {
-        output.sensorStatus.set(2);
+        // output.sensorStatus.set(2); // TODO: move to uint8
         return 1;
     }
-    output.adxl_acc.x = event.acceleration.x;
-    output.adxl_acc.y = event.acceleration.y;
-    output.adxl_acc.z = event.acceleration.z;
+    data.adxl_acc_x = event.acceleration.x;
+    data.adxl_acc_y = event.acceleration.y;
+    data.adxl_acc_z = event.acceleration.z;
 
-    output.adxl_temp = float(event.temperature);
+    data.adxl_temp = float(event.temperature);
 
-    output.sensorStatus.reset(2);
+    // output.sensorStatus.reset(2); // TODO: move to uint8
     return 0;
 }
 
@@ -108,39 +110,39 @@ uint8_t FLIGHT::read_BNO(Adafruit_BNO055 &BNO) {
     sensors_event_t orientationData, angVelocityData, magnetometerData, accelerometerData;
 
     if (!BNO.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER)) {
-        output.sensorStatus.set(3);
+        // output.sensorStatus.set(3); // TODO: move to uint 8
         return 1;
     }
     if (!BNO.getEvent(&angVelocityData, Adafruit_BNO055::VECTOR_GYROSCOPE)) {
-        output.sensorStatus.set(3);
+        // output.sensorStatus.set(3); // TODO: move to uint 8
         return 1;
     }
     if (!BNO.getEvent(&magnetometerData, Adafruit_BNO055::VECTOR_MAGNETOMETER)) {
-        output.sensorStatus.set(3);
+        // output.sensorStatus.set(3); // TODO: move to uint 8
         return 1;
     }
     if (!BNO.getEvent(&accelerometerData, Adafruit_BNO055::VECTOR_ACCELEROMETER)) {
-        output.sensorStatus.set(3);
+        // output.sensorStatus.set(3); // TODO: move to uint 8
         return 1;
     }
 
     imu::Quaternion quat = BNO.getQuat();
-    output.bno_orientation.w = quat.w();
-    output.bno_orientation.x = quat.x();
-    output.bno_orientation.y = quat.y();
-    output.bno_orientation.z = quat.z();
+    data.bno_ori_w = quat.w();
+    data.bno_ori_x = quat.x();
+    data.bno_ori_y= quat.y();
+    data.bno_ori_z = quat.z();
 
-    output.bno_gyro.x = angVelocityData.gyro.x;
-    output.bno_gyro.y = angVelocityData.gyro.y;
-    output.bno_gyro.z = angVelocityData.gyro.z;
+    data.bno_gyro_x = angVelocityData.gyro.x;
+    data.bno_gyro_y = angVelocityData.gyro.y;
+    data.bno_gyro_z = angVelocityData.gyro.z;
 
-    output.bno_acc.x = accelerometerData.acceleration.x;
-    output.bno_acc.y = accelerometerData.acceleration.y;
-    output.bno_acc.z = accelerometerData.acceleration.z;
+    data.bno_acc_x = accelerometerData.acceleration.x;
+    data.bno_acc_y = accelerometerData.acceleration.y;
+    data.bno_acc_z = accelerometerData.acceleration.z;
 
-    output.bno_temp = float(BNO.getTemp());
+    data.bno_temp = float(BNO.getTemp());
 
-    output.sensorStatus.reset(3);
+    // output.sensorStatus.reset(3); // TODO: move to uint8
     return 0;
 }
 
@@ -169,14 +171,14 @@ uint8_t FLIGHT::read_GPS(Adafruit_GPS &GPS) {
                 if (GPS.fix && GPS.satellites > 0) {
                     // Serial.print("Satellites: ");
                     // Serial.println(GPS.satellites);
-                    output.sensorStatus.reset(4);
+                    // output.sensorStatus.reset(4); // TODO: move to uint8
                     return 0;
                 }
             }
         }
     }
 
-    output.sensorStatus.set(4);
+    // output.sensorStatus.set(4); // TODO: move to uint8
     return 1;
 }
 

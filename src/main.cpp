@@ -9,23 +9,14 @@
  */
 
 
-// I/O imports
-#include <Arduino.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <SD.h>
-#include <EasyTransfer.h>
-EasyTransfer ET;
-
-// Chip Imports
-#include <Adafruit_Sensor.h>
-#include <Adafruit_GPS.h>
-
-// Computing imports
+// Imports
 #include <SRAD_PHX.h>
 
 // GLOBAL UART
 #ifdef UART_TEENSY
+    // global transfer object
+    EasyTransfer ET;
+
     // Assigning IDs to sensors
     Adafruit_GPS GPS(&Serial2);
 
@@ -62,6 +53,9 @@ EasyTransfer ET;
     const uint32_t LSM_CS = 40;
     const uint32_t BMP_CS = 41;
     const uint32_t ADXL_CS = 39;
+
+    // global transfer object
+    EasyTransfer ET;
 
     // Assigning IDs to sensors
     Adafruit_LSM6DSO32 LSM;
