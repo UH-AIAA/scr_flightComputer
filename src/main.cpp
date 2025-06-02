@@ -70,7 +70,7 @@ EasyTransfer ET;
     Adafruit_BNO055 BNO(55, 0x28, &Wire);
 
     // Logging
-    // File data;
+    File data;
 
     const String data_header =
     "time,lat,lon,"
