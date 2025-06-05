@@ -42,7 +42,7 @@ void FLIGHT::writeSD(bool headers, File& outputFile) {
     }
 
     outputFile.print(runningTime_ms); outputFile.print(", ");
-    // if(last_gps != nullptr) {
+    if(last_gps != nullptr) {
         if(last_gps->fix) {
             outputFile.print(last_gps->latitudeDegrees, 6); outputFile.print(", ");
             outputFile.print(last_gps->longitudeDegrees, 6); outputFile.print(",");
@@ -53,7 +53,7 @@ void FLIGHT::writeSD(bool headers, File& outputFile) {
         } else {
             outputFile.print("-1,No fix,-1,No fix,0,-1,-1,-1,");
         }
-    // }
+    }
     outputFile.print(data.bno_ori_w, 5); outputFile.print(",");
     outputFile.print(data.bno_ori_x, 5); outputFile.print(",");
     outputFile.print(data.bno_ori_y, 5); outputFile.print(",");

@@ -69,8 +69,7 @@
     File data;
 
     const String data_header =
-    "time,lat,lon,"
-    "satellites,speed,g_angle,gps_alt,"
+    "time,"
     "lsm_gyro_x, lsm_gyro_y, lsm_gyro_z, lsm_acc_x, lsm_acc_y, lsm_acc_z,"
     "bno ori w,bno ori x,bno ori y,bno ori z,"
     "bno_rate_x,bno_rate_y,bno_rate_z,"
@@ -198,9 +197,10 @@ void loop() {
             OPS.writeDataToTeensy();
             Serial4.flush();
             flagHigh = false;
-            delay(100);
+            // delay(5);
         }
         OPS.writeSD(false, data);
+        delay(5);
         #ifdef DEBUG
             Serial.println("Debug data:");
             OPS.writeDEBUG(false, Serial);
