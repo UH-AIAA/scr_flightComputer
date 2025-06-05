@@ -192,7 +192,7 @@ void loop() {
         OPS.read_ADXL(ADXL);
         OPS.read_BNO(BNO);
         OPS.read_LSM(LSM);
-        OPS.calculateState();
+        // OPS.calculateState();
         if(flagHigh) {
             OPS.writeDataToTeensy();
             Serial4.flush();
