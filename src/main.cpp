@@ -9,23 +9,16 @@
  */
 
 
-// I/O imports
-#include <Arduino.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <SD.h>
-#include <EasyTransfer.h>
-EasyTransfer ET;
-
-// Chip Imports
-#include <Adafruit_Sensor.h>
-#include <Adafruit_GPS.h>
-
-// Computing imports
+// Imports
 #include <SRAD_PHX.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
 
 // GLOBAL UART
 #ifdef UART_TEENSY
+    // global transfer object
+    EasyTransfer ET;
+
     // Assigning IDs to sensors
     Adafruit_GPS GPS(&Serial2);
 
@@ -35,16 +28,16 @@ EasyTransfer ET;
     const String data_header =
     "time,lat,lon,"
     "satellites,speed,g_angle,gps_alt,"
-    "lsm_gyro_x, lsm_gyro_y, lsm_gyro_z, lsm_acc_x, lsm_acc_y, lsm_acc_z, "
+    "lsm_gyro_x, lsm_gyro_y, lsm_gyro_z, lsm_acc_x, lsm_acc_y, lsm_acc_z,"
     "bno ori w,bno ori x,bno ori y,bno ori z,"
     "bno_rate_x,bno_rate_y,bno_rate_z,"
     "bno_accel_x,bno_accel_y,bno_accel_z,"
     "adxl_accel_x,adxl_accel_y,adxl_accel_z,"
     "bmp_pressure,bmp_altitude,"
     "lsm_temp,adxl_temp,bno_temp,bmp_temp,"
-    "lsm_status,bmp_status,adxl_status,bno_status,gps_status";
+    "lsm_status,bmp_status,adxl_status,bno_status,gps_status,";
 
-    FlightData currentData;
+    TelemetryData currentData;
     FLIGHT OPS = FLIGHT(data_header, GPS, currentData);
 #endif
 
@@ -63,6 +56,9 @@ EasyTransfer ET;
     const uint32_t BMP_CS = 41;
     const uint32_t ADXL_CS = 39;
 
+    // global transfer object
+    EasyTransfer ET;
+
     // Assigning IDs to sensors
     Adafruit_LSM6DSO32 LSM;
     Adafruit_BMP3XX BMP;
@@ -70,26 +66,26 @@ EasyTransfer ET;
     Adafruit_BNO055 BNO(55, 0x28, &Wire);
 
     // Logging
-    // File data;
+    File data;
 
     const String data_header =
-    "time,lat,lon,"
-    "satellites,speed,g_angle,gps_alt,"
-    "lsm_gyro_x, lsm_gyro_y, lsm_gyro_z, lsm_acc_x, lsm_acc_y, lsm_acc_z"
+    "time,"
+    "lsm_gyro_x, lsm_gyro_y, lsm_gyro_z, lsm_acc_x, lsm_acc_y, lsm_acc_z,"
     "bno ori w,bno ori x,bno ori y,bno ori z,"
     "bno_rate_x,bno_rate_y,bno_rate_z,"
     "bno_accel_x,bno_accel_y,bno_accel_z,"
     "adxl_accel_x,adxl_accel_y,adxl_accel_z,"
     "bmp_pressure,bmp_altitude,"
     "lsm_temp,adxl_temp,bno_temp,bmp_temp,"
-    "lsm_status,bmp_status,adxl_status,bno_status,gps_status";
+    "lsm_status,bmp_status,adxl_status,bno_status,gps_status,";
 
-    FlightData currentData;
+    TelemetryData currentData;
     FLIGHT OPS = FLIGHT(accel_liftoff_threshold, accel_liftoff_time_threshold, land_time_threshold, land_altitude_threshold, data_header, currentData);
 #endif
 
 #define FLAG_PIN 24
-
+void onFlagHigh();
+volatile bool flagHigh;
 
 void setup() {
     
@@ -106,7 +102,6 @@ void setup() {
         delay(1000);  // Wait for 1 second before retrying
     }
     Serial.println(F("SD initialized"));
-    SD.begin(BUILTIN_SDCARD);
 
     // Create data logging file
     char dataname[17] = "FL0.csv";
@@ -144,6 +139,7 @@ void setup() {
         Serial4.begin(9600);
         OPS.initTransferSerial(Serial4);
         pinMode(FLAG_PIN, INPUT);
+        attachInterrupt(digitalPinToInterrupt(FLAG_PIN), onFlagHigh, RISING);
         SPI.begin();
         // Configure LSM6DSO32
         while(!LSM.begin_SPI(LSM_CS, &SPI)) {
@@ -197,34 +193,34 @@ void loop() {
         OPS.read_BNO(BNO);
         OPS.read_LSM(LSM);
         OPS.calculateState();
-        if(digitalRead(FLAG_PIN) == HIGH) {
-            #ifdef DEBUG
-                Serial.println("Transmitting...");
-            #endif
-            
+        if(flagHigh) {
             OPS.writeDataToTeensy();
+            Serial4.flush();
+            flagHigh = false;
+            // delay(5);
         }
-
+        OPS.writeSD(false, data);
+        delay(5);
         #ifdef DEBUG
             Serial.println("Debug data:");
-            // OPS.writeDEBUG(false, Serial);
+            OPS.writeDEBUG(false, Serial);
         #else 
             OPS.printRate(); // function to figure out what our cycle rate is
         #endif
     #endif
 
     #ifdef UART_TEENSY
+        OPS.incrementTime();
         OPS.read_GPS(GPS);
         #ifdef DEBUG
             Serial.println("Writing pin high...");
         #endif
         digitalWrite(FLAG_PIN, HIGH);
-        // delay(25);
         #ifdef DEBUG
             Serial.println("Reading from spi teensy...");
         #endif
         OPS.readDataFromTeensy();
-        // delay(75);
+        // delay(25);
         #ifdef DEBUG
             Serial.println("Writing pin low...");
         #endif
@@ -234,6 +230,12 @@ void loop() {
         OPS.writeSERIAL(false, Serial1);
         #ifdef DEBUG
             OPS.writeDEBUG(false, Serial);
+        #else 
+            OPS.printRate();
         #endif
     #endif
+}
+
+void onFlagHigh() {
+    flagHigh = true;
 }
