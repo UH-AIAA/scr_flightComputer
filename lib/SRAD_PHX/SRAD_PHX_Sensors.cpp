@@ -22,9 +22,7 @@ uint8_t FLIGHT::read_LSM(Adafruit_LSM6DSO32 &LSM) {
     // Attempt to read sensor data
     if(!LSM.getEvent(&accel, &gyro, &temp))
     {
-        // TODO: update to straightup uint8 instead of bitset
-
-        // output.sensorStatus.set(0);
+        data.sensor_status[0] = 0;
         return 1;  // Return true if read fails
     }
 
@@ -40,10 +38,8 @@ uint8_t FLIGHT::read_LSM(Adafruit_LSM6DSO32 &LSM) {
 
     // Store temperature data
     data.lsm_temp = float(temp.temperature);
-    
-    // TODO: also fix to use uint8
 
-    // output.sensorStatus.reset(0);
+    data.sensor_status[0] = 1;
     return 0;  // Return false if read succeeds
 }
 
@@ -55,7 +51,7 @@ uint8_t FLIGHT::read_LSM(Adafruit_LSM6DSO32 &LSM) {
  */
 uint8_t FLIGHT::read_BMP(Adafruit_BMP3XX &BMP) {
     if (!BMP.performReading()) {
-        // output.sensorStatus.set(1);  // TODO: move to uint8
+        data.sensor_status[1] = 0;
         return 1;
     }
     data.bmp_temp = BMP.temperature;
@@ -74,7 +70,7 @@ uint8_t FLIGHT::read_BMP(Adafruit_BMP3XX &BMP) {
     }
     altReadings[altReadings_ind] = data.bmp_alt;
 
-    // output.sensorStatus.reset(1); // TODO: move to uint8
+    data.sensor_status[1] = 1;
     return 0;
 }
 
@@ -87,7 +83,7 @@ uint8_t FLIGHT::read_BMP(Adafruit_BMP3XX &BMP) {
 uint8_t FLIGHT::read_ADXL(Adafruit_ADXL375 &ADXL) {
     sensors_event_t event;
     if (!ADXL.getEvent(&event)) {
-        // output.sensorStatus.set(2); // TODO: move to uint8
+        data.sensor_status[2] = 0;
         return 1;
     }
     data.adxl_acc_x = event.acceleration.x;
@@ -96,7 +92,7 @@ uint8_t FLIGHT::read_ADXL(Adafruit_ADXL375 &ADXL) {
 
     data.adxl_temp = float(event.temperature);
 
-    // output.sensorStatus.reset(2); // TODO: move to uint8
+    data.sensor_status[2] = 1;
     return 0;
 }
 
@@ -110,19 +106,19 @@ uint8_t FLIGHT::read_BNO(Adafruit_BNO055 &BNO) {
     sensors_event_t orientationData, angVelocityData, magnetometerData, accelerometerData;
 
     if (!BNO.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER)) {
-        // output.sensorStatus.set(3); // TODO: move to uint 8
+        data.sensor_status[3] = 0;
         return 1;
     }
     if (!BNO.getEvent(&angVelocityData, Adafruit_BNO055::VECTOR_GYROSCOPE)) {
-        // output.sensorStatus.set(3); // TODO: move to uint 8
+        data.sensor_status[3] = 0;
         return 1;
     }
     if (!BNO.getEvent(&magnetometerData, Adafruit_BNO055::VECTOR_MAGNETOMETER)) {
-        // output.sensorStatus.set(3); // TODO: move to uint 8
+        data.sensor_status[3] = 0;
         return 1;
     }
     if (!BNO.getEvent(&accelerometerData, Adafruit_BNO055::VECTOR_ACCELEROMETER)) {
-        // output.sensorStatus.set(3); // TODO: move to uint 8
+        data.sensor_status[3] = 0;
         return 1;
     }
 
@@ -142,7 +138,7 @@ uint8_t FLIGHT::read_BNO(Adafruit_BNO055 &BNO) {
 
     data.bno_temp = float(BNO.getTemp());
 
-    // output.sensorStatus.reset(3); // TODO: move to uint8
+    data.sensor_status[3] = 1;
     return 0;
 }
 
@@ -153,10 +149,10 @@ uint8_t FLIGHT::read_BNO(Adafruit_BNO055 &BNO) {
  * @return Returns `false` if GPS isn't ready in 500ms or no satellite fix, returns `true` otherwise
  */
 uint8_t FLIGHT::read_GPS(Adafruit_GPS &GPS) {
-    last_gps = GPS;
+    last_gps = &GPS;
     
     uint32_t startms = millis();
-    uint32_t timeout = startms + 500;
+    uint32_t timeout = startms + 150;
 
     while (millis() < timeout) {
         while (GPS.available()) {
@@ -171,14 +167,14 @@ uint8_t FLIGHT::read_GPS(Adafruit_GPS &GPS) {
                 if (GPS.fix && GPS.satellites > 0) {
                     // Serial.print("Satellites: ");
                     // Serial.println(GPS.satellites);
-                    // output.sensorStatus.reset(4); // TODO: move to uint8
+                    data.sensor_status[4] = 0;
                     return 0;
                 }
             }
         }
     }
 
-    // output.sensorStatus.set(4); // TODO: move to uint8
+    data.sensor_status[4] = 1;
     return 1;
 }
 

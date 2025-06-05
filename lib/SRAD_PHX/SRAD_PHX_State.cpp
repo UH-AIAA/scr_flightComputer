@@ -64,7 +64,7 @@ bool FLIGHT::isCal() {
  */
 bool FLIGHT::isAscent() {
     static uint32_t liftoffTimer_ms;
-    if(!output.sensorStatus.test(0)) {  // TODO: update this whole if block for uint8
+    if(data.sensor_status[0] == 1) {
         if(data.lsm_acc_z > accel_liftoff_threshold) {
             liftoffTimer_ms += deltaTime_ms;
 
@@ -74,7 +74,7 @@ bool FLIGHT::isAscent() {
         } else {
             liftoffTimer_ms = 0;
         }
-    } else if (!output.sensorStatus.test(2)) {  // if primary accel is known to be bad, check secondary
+    } else if (data.sensor_status[2] == 1) {  // if primary accel is known to be bad, check secondary
         if(data.lsm_acc_z > accel_liftoff_threshold) {
             liftoffTimer_ms += deltaTime_ms;
 
@@ -93,7 +93,7 @@ bool FLIGHT::isAscent() {
 
 bool FLIGHT::isDescent() {
     // use altimeter primarily to detect apogee based off of trend in data
-    if(!output.sensorStatus.test(1)) { // TODO: fix whole if bock to use uint8
+    if(data.sensor_status[1] == 1) { // TODO: fix whole if bock to use uint8
         uint8_t desc_samples = 0;                                   // tracks the number of samples with a descending delta
         Serial.println("made it to for loop");
         for(int i = 0; i < 9; i++) {
@@ -113,12 +113,12 @@ bool FLIGHT::isDescent() {
 }
 
 bool FLIGHT::isLanded() {
-    if(!output.sensorStatus.test(0)) { // TODO: fix whole if block to use uint8
+    if(data.sensor_status[0] == 1) {
         if (data.adxl_acc_z < 2 && data.adxl_acc_z >= 0){
             return true;
         }
     } else {
-        if (output.bmp_alt <=  alt_offset + 10){    // if the current altitude is less than the offset altitude + 10m 
+        if (data.bmp_alt <=  alt_offset + 10){    // if the current altitude is less than the offset altitude + 10m 
             return true;                            // then return True to indicate the rocket is landed
         }
     }
@@ -136,6 +136,6 @@ bool FLIGHT::calibrate() {
 
 void FLIGHT::AltitudeCalibrate() {
     // save the offset to the current altitude when the function is called
-    alt_offset = output.bmp_alt;
+    alt_offset = data.bmp_alt;
 }
 

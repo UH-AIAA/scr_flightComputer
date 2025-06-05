@@ -15,18 +15,18 @@
 #include <EasyTransfer.h> //using EasyTransfer lib instead
 #include <Quaternion.h>
 
-struct FlightData {
-    // data collected by sensors
-    Vector3 lsm_gyro, lsm_acc;                      // Gyroscope/Accelerometer  (LSM6DS032 Chip)
-    Vector3 adxl_acc;                               // Acceleromter (AXDL375 Chip)
-    Vector3 bno_gyro, bno_acc, bno_mag;             // Gyro/Accel/Magnetic Flux (BNO055 Chip)
-    Quaternion bno_orientation;                     // Orientation (also BNO055)
-    float lsm_temp, adxl_temp, bno_temp;            // Temperature (all chips that record)
-    float bmp_temp, bmp_press, bmp_alt;             // Barometer Pressure/Altitude (BMP388 Chip)
+// struct FlightData {
+//     // data collected by sensors
+//     Vector3 lsm_gyro, lsm_acc;                      // Gyroscope/Accelerometer  (LSM6DS032 Chip)
+//     Vector3 adxl_acc;                               // Acceleromter (AXDL375 Chip)
+//     Vector3 bno_gyro, bno_acc, bno_mag;             // Gyro/Accel/Magnetic Flux (BNO055 Chip)
+//     Quaternion bno_orientation;                     // Orientation (also BNO055)
+//     float lsm_temp, adxl_temp, bno_temp;            // Temperature (all chips that record)
+//     float bmp_temp, bmp_press, bmp_alt;             // Barometer Pressure/Altitude (BMP388 Chip)
 
-    std::bitset<5> sensorStatus;
-    uint32_t totalTime_ms;
-};
+//     std::bitset<5> sensorStatus;
+//     uint32_t totalTime_ms;
+// };
 
 struct TelemetryData { // Easy transfer can only work with basic data types 
                       //(int, float, etc.. but not vector3 stuff due to unpredictability)
@@ -39,7 +39,8 @@ struct TelemetryData { // Easy transfer can only work with basic data types
     float bno_ori_w, bno_ori_x, bno_ori_y, bno_ori_z;
     float lsm_temp, adxl_temp, bno_temp, bmp_temp;
     float bmp_press, bmp_alt;
-    uint8_t sensor_status[4];  // bitset not supported by EasyTransfer
+
+    uint8_t sensor_status[5];  // bitset not supported by EasyTransfer
 };
 
 enum STATES {
@@ -53,9 +54,9 @@ enum STATES {
 class FLIGHT {
     public:
         // three stack initial constructor
-        FLIGHT(int a1, int a2, int l1, int l2, String h, Adafruit_GPS& g, FlightData& o) 
+        FLIGHT(int a1, int a2, int l1, int l2, String h, Adafruit_GPS& g, TelemetryData& o) 
         : accel_liftoff_threshold(a1), accel_liftoff_time_threshold(a2), 
-        land_time_threshold(l1), land_altitude_threshold(l2), data_header(h), last_gps(g), output(o) {
+        land_time_threshold(l1), land_altitude_threshold(l2), data_header(h), last_gps(&g), data(o) {
             STATE = STATES::PRE_NO_CAL;
             runningTime_ms = 0;
 
@@ -67,18 +68,19 @@ class FLIGHT {
         }
 
         // UART Constructor
-        FLIGHT(String h, Adafruit_GPS& g, FlightData& o) 
-        : data_header(h), last_gps(g), output(o) {
+        FLIGHT(String h, Adafruit_GPS& g, TelemetryData& o) 
+        : data_header(h), last_gps(&g), data(o) {
             STATE = STATES::PRE_NO_CAL;
             runningTime_ms = 0;
         }
 
         // SPI Constructor
-        FLIGHT(int a1, int a2, int l1, int l2, String h, FlightData& o) 
+        FLIGHT(int a1, int a2, int l1, int l2, String h, TelemetryData& o) 
         : accel_liftoff_threshold(a1), accel_liftoff_time_threshold(a2), 
-        land_time_threshold(l1), land_altitude_threshold(l2), data_header(h), output(o) {
+        land_time_threshold(l1), land_altitude_threshold(l2), data_header(h), data(o) {
             STATE = STATES::PRE_NO_CAL;
             runningTime_ms = 0;
+            last_gps = nullptr;
 
             // initialize arrays!
             altReadings_ind = 0;
@@ -110,8 +112,6 @@ class FLIGHT {
         bool calibrate();
 
         void initTransferSerial(Stream &);
-        // FlightData decodeTransmission(TransmitFlightData);
-        // TransmitFlightData prepareToTransmit(FlightData);
         void AltitudeCalibrate();
         void printRate();
 
@@ -121,9 +121,8 @@ class FLIGHT {
         int land_time_threshold;            // MILLISECONDS
         int land_altitude_threshold;        // METERS
 
-        FlightData& output;
         String data_header;
-        Adafruit_GPS& last_gps;             // used for data collection, for some reason the GPS stores it
+        Adafruit_GPS* last_gps;             // used for data collection, for some reason the GPS stores it
         uint16_t deltaTime_ms;
         uint64_t runningTime_ms;
 
@@ -141,8 +140,8 @@ class FLIGHT {
         STATES STATE;
 
         EasyTransfer ET;
-        TelemetryData txData;
-        TelemetryData rxData;
+        TelemetryData* txData;
+        TelemetryData* rxData;
         TelemetryData data;
 };
 
